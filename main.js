@@ -153,6 +153,18 @@ var App = {};
         return value;
     }
 
+    /** removes the letters for the supplied word */
+    function consumeLetters(entry) {
+        for (var i = 0; i < entry.word.length; ++i) {
+            for (var k = 0; k < entry.letters.length; ++k) {
+                if (entry.word[i] == entry.letters[k]) {
+                    entry.letters = entry.letters.slice(k);
+                    break;
+                }
+            }
+        }
+    }
+
     /** submit a word by a user */
     function submitWord(user, params, command) {
         if (Round.stage != 'submit') {
@@ -300,6 +312,10 @@ var App = {};
     /** begin scoring - scores are compared against target score */
     function beginScoring() {
         Round.stage = 'score';
+
+        var bestDelta = 100000;
+        var bestEntries = [];
+
         var text = 'Die Beiträge diese Runde:';
         for (var userId in Round.players) {
             if (Round.players.hasOwnProperty(userId)) {
@@ -315,16 +331,42 @@ var App = {};
 
                 if (entry.step == 'okay' || entry.step == 'accept') {
                     text += '##' + user.getNick() + ': "' + entry.word + '" für ' + entry.value + ' Punkte';
+
+                    consumeLetters(entry);
+
+                    var delta = Math.abs(Round.target - entry.value);
+                    if (delta < bestDelta) {
+                        bestEntries = [userId];
+                        bestDelta = delta;
+                    } else if (delta == bestDelta) {
+                        bestEntries.push(userId);
+                    }
                 }
             }
         }
+
+        text += "##Gewinner:";
+        if (bestEntries.length > 0) {
+            for (var i = 0; i < bestEntries.length; ++i) {
+                var user = KnuddelsServer.getUser(bestEntries[i]);
+                text += ' ' + user.getNick();
+            }
+        } else {
+            text += ' -';
+        }
+
         sendPublicMessage(text);
     }
 
     /** end of round - resets all necessary fields */
     function beginEndOfRound() {
+        LastRound.target = Round.target;
+        LastRound.players = Round.players;
+
         Round.stage = 'none';
         Round.players = {};
+
+        Voting = {};
 
         sendPublicMessage('Runde vorbei! Jetzt beitreten mit _>/spielen<_');
     }
@@ -360,16 +402,21 @@ var App = {};
         x: submitWord,
         submit: submitWord,
         spell: submitWord,
+        wort: submitWord,
 
-        game: joinGame,
+        // game: joinGame,
         spiel: joinGame,
         join: joinGame,
         spielen: joinGame,
 
         accept: acceptSpelling,
+        richtig: acceptSpelling,
+        '+': acceptSpelling,
         reject: rejectSpelling,
+        '-': rejectSpelling,
+        falsch: rejectSpelling,
 
-        next: advanceStep,
+        // next: advanceStep,
         weiter: advanceStep
     };
 
