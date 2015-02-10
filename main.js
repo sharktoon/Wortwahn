@@ -66,14 +66,51 @@ var Round = {
     players: {}
 };
 
+// all the remaining info from the last round
+var LastRound = {
+    stage: 'points',
+    target: 0,
+    players: {}
+}
+
+var Candidates = [];
+
 // 'WORD': { accept: [], reject: [] }
 var Voting = {};
+
+/** various settings for the game */
+var Settings = {
+    LetterPool: 'aaaaabbbbcccccdddeeeeeeeeeeeefffffgggggggghhhhhhhiiiiijjjkkkkkllllmmmmmmmnnnnnnooooooppppqrrrrrrssssstttttuuuvvvvwwxyzz',
+    LetterCount: 8
+};
 
 var App = {};
 
 
 (function() {
-    App.chatCommands = {};
+    var LetterPool = [];
+
+    /** fills the letters with available letters from the pool */
+    function refillLetters(letters) {
+        while(letters.length < Settings.LetterCount) {
+            if (LetterPool.length <= 1) {
+                // no letters left in pool? => refill!
+                var base = Settings.LetterPool.toUpperCase();
+                for (var i = 0; i < base.length; ++i) {
+                    LetterPool.push(base[i]);
+                }
+                // add at least one of each letter
+                for (var k in LetterValue) {
+                    if (LetterValue.hasOwnProperty(k)) {
+                        LetterPool.push(k);
+                    }
+                }
+                LetterPool = RandomOperations.shuffleObjects(LetterPool);
+            }
+
+            letters.push(LetterPool.pop());
+        }
+    }
 
     /** display the contents of the letters array in a human readable format */
     function lettersToString(letters) {
@@ -82,6 +119,11 @@ var App = {};
             result = result + letters[i] + '(' + LetterValue[letters[i]] + ') ';
         }
         return result;
+    }
+
+    /** convenience function - so I only see warning once */
+    function sendPublicMessage(text) {
+        KnuddelsServer.getDefaultBot().sendPublicMessage(text);
     }
 
     /** retrieve value of the provided word - returns -1 if word was not possible */
@@ -154,9 +196,44 @@ var App = {};
         // TODO: check for end of submit stage!
     }
 
-    App.chatCommands.x = submitWord;
-    App.chatCommands.submit = submitWord;
-    App.chatCommands.spell = submitWord;
+    /** initializes the player instance - inside the round object */
+    function startPlayer(userId) {
+        if (Round.players.hasOwnProperty(userId)) {
+            return;
+        }
+
+        var user = KnuddelsServer.getUser(userId);
+        if (user && user.isOnlineInChannel()) {
+             var obj = {
+                letters: [],
+                step: 'none',
+                word: '',
+                value: -1,
+                win: false
+            }
+
+            if (LastRound.players.hasOwnProperty(userId)) {
+                obj.letters = LastRound.players[userId].letters;
+            }
+
+            refillLetters(obj.letters);
+            Round.players[userId] = obj;
+
+            user.sendPrivateMessage('Deine Buchstaben diese Runde:' + lettersToString(obj.letters));
+        }
+    }
+
+    function joinGame(user, params, command) {
+        var userId = user.getUserId();
+        if (Round.stage != 'none') {
+            user.sendPrivateMessage('Momentan kannst du nicht einsteigen. Habe bitte einen Moment Geduld. Sobald das nächste Spiel losgeht, wirst du informiert!');
+            Candidates.push(userId);
+            return;
+        }
+
+        startPlayer(userId);
+    }
+
 
     /** check if a user has already voted on a word - or not */
     function hasVoted(voteBox, userId) {
@@ -197,16 +274,13 @@ var App = {};
         }
     }
 
-    App.chatCommands.accept = acceptSpelling;
-    App.chatCommands.reject = rejectSpelling;
-
     /** starts submit phase - every player gets letters assigned */
     function beginSubmit() {
         Round.target = 1 + RandomOperations.nextInt(20);
         Round.stage = 'submit';
 
-        KnuddelsServer.getDefaultBotUser().sendPublichMessage('Kommt möglichst nahe an ' + Round.target + ' heran!');
-        // TODO: provide everyone with letters
+        sendPublicMessage('Kommt möglichst nahe an ' + Round.target + ' heran!');
+
     }
 
     /** starts voting phase - every player gets the vote links */
@@ -219,7 +293,7 @@ var App = {};
             }
         }
 
-        KnuddelsServer.getDefaultBotUser().sendPublicMessage(text)
+        sendPublicMessage(text);
     }
 
     /** begin scoring - scores are compared against target score */
@@ -231,6 +305,8 @@ var App = {};
     function beginEndOfRound() {
         Round.stage = 'none';
         Round.players = {};
+
+        sendPublicMessage('Runde vorbei! Jetzt beitreten mit _>/spielen<_');
     }
 
     /** advance the round to the next step */
@@ -260,5 +336,21 @@ var App = {};
         }
     }
 
-    App.chatCommands.next = advanceStep;
+    App.chatCommands = {
+        x: submitWord,
+        submit: submitWord,
+        spell: submitWord,
+
+        game: joinGame,
+        spiel: joinGame,
+        join: joinGame,
+        spielen: joinGame,
+
+        accept: acceptSpelling,
+        reject: rejectSpelling,
+
+        next: advanceStep,
+        weiter: advanceStep
+    };
+
 })();
