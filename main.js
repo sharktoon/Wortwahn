@@ -60,7 +60,7 @@ var WordBase = {
 
 // userId: { letters: [], word: '', value: 0, step: NONE/OKAY/VOTE/ACCEPT/REJECT, win: true/false }
 var Round = {
-    // none,submit,vote,points
+    // none,submit,vote,score
     stage: 'none',
     target: 0,
     players: {}
@@ -68,7 +68,7 @@ var Round = {
 
 // all the remaining info from the last round
 var LastRound = {
-    stage: 'points',
+    stage: 'score',
     target: 0,
     players: {}
 }
@@ -123,7 +123,7 @@ var App = {};
 
     /** convenience function - so I only see warning once */
     function sendPublicMessage(text) {
-        KnuddelsServer.getDefaultBot().sendPublicMessage(text);
+        KnuddelsServer.getDefaultBotUser().sendPublicMessage(text);
     }
 
     /** retrieve value of the provided word - returns -1 if word was not possible */
@@ -135,12 +135,12 @@ var App = {};
         word = word.toUpperCase();
 
         var value = 0;
-        var availableLetters = letters.copy();
+        var availableLetters = letters.slice();
         for (var i = 0; i < word.length; ++i) {
             var foundLetter = false;
             for (var k = 0; k < availableLetters.length; ++k) {
                 if (word[i] == availableLetters[k]) {
-                    availableLetters.slice(k);
+                    availableLetters = availableLetters.slice(k);
                     foundLetter = true;
                     value += LetterValue[word[i]];
                     break;
@@ -286,6 +286,7 @@ var App = {};
     /** starts voting phase - every player gets the vote links */
     function beginVoting() {
         var text = 'Folgende Worte wurde eingereicht:';
+        Round.stage = 'vote';
 
         for (var entry in Voting) {
             if (Voting.hasOwnProperty(entry)) {
@@ -298,7 +299,26 @@ var App = {};
 
     /** begin scoring - scores are compared against target score */
     function beginScoring() {
+        Round.stage = 'score';
+        var text = 'Die Beiträge diese Runde:';
+        for (var userId in Round.players) {
+            if (Round.players.hasOwnProperty(userId)) {
+                var user = KnuddelsServer.getUser(userId);
+                var entry = Round.players[userId];
+                if (entry.step == 'vote') {
+                    if (Voting[entry.word].accept.length >= Voting[entry.word].reject.length) {
+                        entry.step = 'accept';
+                    } else {
+                        entry.step = 'reject';
+                    }
+                }
 
+                if (entry.step == 'okay' || entry.step == 'accept') {
+                    text += '##' + user.getNick() + ': "' + entry.word + '" für ' + entry.value + ' Punkte';
+                }
+            }
+        }
+        sendPublicMessage(text);
     }
 
     /** end of round - resets all necessary fields */
@@ -331,7 +351,7 @@ var App = {};
             }
         } else if (Round.stage == 'vote') {
             beginScoring();
-        } else if (Round.stage == 'points') {
+        } else if (Round.stage == 'score') {
             beginEndOfRound();
         }
     }
