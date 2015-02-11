@@ -28,6 +28,15 @@ var LetterValue = {
     Z: 2
 };
 
+var ValueColorCodes = {
+    0: 'W',
+    1: 'C',
+    2: 'O',
+    3: 'R',
+    4: 'G',
+    5: 'M'
+};
+
 // 'WORD': { accepted: <int>, rejected: <int>, okay: true/false, used: <int> }
 var WordBase = {
     'ALTER': { okay: true },
@@ -116,8 +125,11 @@ var App = {};
     function lettersToString(letters) {
         var result = ' ';
         for (var i = 0; i < letters.length; ++i) {
-            result = result + letters[i] + '(' + LetterValue[letters[i]] + ') ';
+            var colorCode = ValueColorCodes[LetterValue[letters[i]]];
+            //result = result + letters[i] + '(' + LetterValue[letters[i]] + ') ';
+            result = result + '°r' + colorCode + '°' + letters[i] + '°r10°' + LetterValue[letters[i]] + ' ';
         }
+        result += '°r°';
         return result;
     }
 
@@ -140,7 +152,7 @@ var App = {};
             var foundLetter = false;
             for (var k = 0; k < availableLetters.length; ++k) {
                 if (word[i] == availableLetters[k]) {
-                    availableLetters = availableLetters.slice(k);
+                    availableLetters.splice(k, 1);
                     foundLetter = true;
                     value += LetterValue[word[i]];
                     break;
@@ -158,7 +170,7 @@ var App = {};
         for (var i = 0; i < entry.word.length; ++i) {
             for (var k = 0; k < entry.letters.length; ++k) {
                 if (entry.word[i] == entry.letters[k]) {
-                    entry.letters = entry.letters.slice(k);
+                    entry.letters.splice(k, 1);
                     break;
                 }
             }
@@ -192,7 +204,7 @@ var App = {};
 
         var value = getWordValue(obj.letters, entry);
         if (value < 0) {
-            user.sendPrivateMessage('Das Wort "' + entry + '" ist mit deinen Buchstaben leider nicht möglich!##Du hast diese Buchstaben:' + lettersToString(obj.letters));
+            user.sendPrivateMessage('Das Wort "' + entry + '" ist mit deinen Buchstaben leider nicht möglich!°#°#Du hast diese Buchstaben:' + lettersToString(obj.letters));
             return;
         }
 
@@ -206,6 +218,18 @@ var App = {};
         user.sendPrivateMessage('Dein Wort "' + entry + '" hat den Wert ' + value + ' - falls es von den anderen als gültig akzeptiert wird!');
 
         // TODO: check for end of submit stage!
+    }
+
+    /** replaces all letters a user has */
+    function replaceLetters(user) {
+        var userId = user.getUserId();
+
+        if (Round.players.hasOwnProperty(userId)) {
+            Round.players[userId].letters = [];
+            refillLetters(Round.players[userId].letters);
+
+            user.sendPrivateMessage('Deine Buchstaben sind nun:' + lettersToString(Round.players[userId].letters));
+        }
     }
 
     /** initializes the player instance - inside the round object */
@@ -302,7 +326,7 @@ var App = {};
 
         for (var entry in Voting) {
             if (Voting.hasOwnProperty(entry)) {
-                text += '## ' + entry + ' = _>okay|/accept ' + entry + '<_ oder _>falsch|/reject ' + entry + '<_';
+                text += '## ' + entry + ' = _°>okay|/accept ' + entry + '<°_ oder _°>falsch|/reject ' + entry + '<°_';
             }
         }
 
@@ -368,7 +392,7 @@ var App = {};
 
         Voting = {};
 
-        sendPublicMessage('Runde vorbei! Jetzt beitreten mit _>/spielen<_');
+        sendPublicMessage('Runde vorbei! Jetzt beitreten mit _°>/spielen|/spielen<°_');
     }
 
     /** advance the round to the next step */
@@ -417,7 +441,11 @@ var App = {};
         falsch: rejectSpelling,
 
         // next: advanceStep,
-        weiter: advanceStep
+        weiter: advanceStep,
+
+        dump: replaceLetters,
+        abwerfen: replaceLetters,
+        ersetzen: replaceLetters
     };
 
 })();
