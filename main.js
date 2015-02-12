@@ -89,8 +89,42 @@ var Voting = {};
 
 /** various settings for the game */
 var Settings = {
-    LetterPool: 'aaaaabbbbcccccdddeeeeeeeeeeeefffffgggggggghhhhhhhiiiiijjjkkkkkllllmmmmmmmnnnnnnooooooppppqrrrrrrssssstttttuuuvvvvwwxyzz',
-    LetterCount: 8
+    LetterPool: {
+        A: 7, //6.5,
+        B: 2, //1.9,
+        C: 3, //3.1,
+        D: 5, //5.1,
+        E: 17, //17.4,
+        F: 2, //1.7,
+        G: 3, //3.0,
+        H: 4, //4.8,
+        I: 8,//7.6,
+        J: 1,//0.3,
+        K: 1,//1.2,
+        L: 3,//3.4,
+        M: 2,//2.5,
+        N: 10,//9.8,
+        O: 3,//2.5,
+        P: 1,//0.8,
+        Q: 1,//0.1,
+        R: 7,//7.0,
+        S: 8,//7.9,
+        T: 6,//6.2,
+        U: 5,//4.4,
+        V: 1,//0.7,
+        W: 1,//1.9,
+        X: 1,//0.1,
+        Y: 1,//0.1,
+        Z: 1//1.1
+    },
+    LetterCount: 8,
+    Timer: {
+        score: 3000,
+        signup: 5000,
+        submit: 30000,
+        submitFinal: 5000,
+        vote: 5000
+    }
 };
 
 var App = {};
@@ -104,14 +138,12 @@ var App = {};
         while(letters.length < Settings.LetterCount) {
             if (LetterPool.length <= 1) {
                 // no letters left in pool? => refill!
-                var base = Settings.LetterPool.toUpperCase();
-                for (var i = 0; i < base.length; ++i) {
-                    LetterPool.push(base[i]);
-                }
-                // add at least one of each letter
-                for (var k in LetterValue) {
-                    if (LetterValue.hasOwnProperty(k)) {
-                        LetterPool.push(k);
+                var base = Settings.LetterPool;
+                for (var i in base) {
+                    if (base.hasOwnProperty(i)) {
+                        for(var k = 0; k < base[i]; ++k) {
+                            LetterPool.push(i);
+                        }
                     }
                 }
                 LetterPool = RandomOperations.shuffleObjects(LetterPool);
@@ -190,10 +222,10 @@ var App = {};
         }
 
         var obj = Round.players[userId];
-        if (obj.step != 'none') {
-            user.sendPrivateMessage('Du hast diese Runde schon ein Wort eingereicht!');
-            return;
-        }
+        //if (obj.step != 'none') {
+        //    user.sendPrivateMessage('Du hast diese Runde schon ein Wort eingereicht!');
+        //    return;
+        //}
 
         var entry = params.trim().toUpperCase();
 
@@ -204,7 +236,7 @@ var App = {};
 
         var value = getWordValue(obj.letters, entry);
         if (value < 0) {
-            user.sendPrivateMessage('Das Wort "' + entry + '" ist mit deinen Buchstaben leider nicht möglich!°#°#Du hast diese Buchstaben:' + lettersToString(obj.letters));
+            user.sendPrivateMessage('Das Wort "' + entry + '" ist mit deinen Buchstaben leider nicht möglich!°##°Du hast diese Buchstaben:' + lettersToString(obj.letters));
             return;
         }
 
@@ -259,6 +291,8 @@ var App = {};
         }
     }
 
+    var gameStartingTimer = undefined;
+
     function joinGame(user, params, command) {
         var userId = user.getUserId();
         if (Round.stage != 'none') {
@@ -268,6 +302,25 @@ var App = {};
         }
 
         startPlayer(userId);
+
+        var count = 0;
+        for (var player in Round.players) {
+            if (Round.players.hasOwnProperty(player)) {
+                ++count;
+            }
+        }
+        if (count >= 2) {
+            if (gameStartingTimer == undefined) {
+                sendPublicMessage('Spiel beginnt in ' + Settings.Timer.signup/1000 + ' Sekunden!');
+                setTimeout(function() {
+                    if (Round.stage == 'none') {
+                        beginSubmit();
+                    }
+                }, Settings.Timer.signup);
+            }
+        } else {
+            sendPublicMessage(count + ' Mitspieler angemeldet! Noch sind Plätze frei!');
+        }
     }
 
 
@@ -315,8 +368,28 @@ var App = {};
         Round.target = 1 + RandomOperations.nextInt(20);
         Round.stage = 'submit';
 
-        sendPublicMessage('Kommt möglichst nahe an ' + Round.target + ' heran!');
+        sendPublicMessage('Kommt möglichst nahe an _' + Round.target + '_ heran! Worte können mit ""/x WORT"" eingereicht werden');
 
+        function endSubmit() {
+            if (Round.stage == 'submit') {
+                var skipVote = true;
+                for (var entry in Voting) {
+                    if (Voting.hasOwnProperty(entry)) {
+                        skipVote = false;
+                    }
+                }
+                if (skipVote) {
+                    beginScoring();
+                } else {
+                    beginVoting();
+                }
+            }
+        }
+
+        setTimeout(function() {
+            sendPublicMessage('Nur noch ' + Settings.Timer.submitFinal / 1000  + ' Sekunden! Mit /x WORT kann ein Wort eingereicht werden!');
+            setTimeout(endSubmit, Settings.Timer.submitFinal);
+        }, Settings.Timer.submit);
     }
 
     /** starts voting phase - every player gets the vote links */
@@ -326,11 +399,17 @@ var App = {};
 
         for (var entry in Voting) {
             if (Voting.hasOwnProperty(entry)) {
-                text += '## ' + entry + ' = _°>okay|/accept ' + entry + '<°_ oder _°>falsch|/reject ' + entry + '<°_';
+                text += '°##° ' + entry + ' = _°>okay|/accept ' + entry + '<°_ oder _°>falsch|/reject ' + entry + '<°_';
             }
         }
 
         sendPublicMessage(text);
+
+        setTimeout(function() {
+            if (Round.stage == 'vote') {
+                beginScoring();
+            }
+        }, Settings.Timer.vote);
     }
 
     /** begin scoring - scores are compared against target score */
@@ -354,7 +433,7 @@ var App = {};
                 }
 
                 if (entry.step == 'okay' || entry.step == 'accept') {
-                    text += '##' + user.getNick() + ': "' + entry.word + '" für ' + entry.value + ' Punkte';
+                    text += '°##°- ' + user.getNick() + ': "' + entry.word + '" für ' + entry.value + ' Punkte';
 
                     consumeLetters(entry);
 
@@ -369,7 +448,7 @@ var App = {};
             }
         }
 
-        text += "##Gewinner:";
+        text += "°##°Gewinner:";
         if (bestEntries.length > 0) {
             for (var i = 0; i < bestEntries.length; ++i) {
                 var user = KnuddelsServer.getUser(bestEntries[i]);
@@ -380,6 +459,12 @@ var App = {};
         }
 
         sendPublicMessage(text);
+
+        setTimeout(function() {
+            if(Round.stage == 'score') {
+                beginEndOfRound();
+            }
+        }, Settings.Timer.score);
     }
 
     /** end of round - resets all necessary fields */
@@ -392,7 +477,7 @@ var App = {};
 
         Voting = {};
 
-        sendPublicMessage('Runde vorbei! Jetzt beitreten mit _°>/spielen|/spielen<°_');
+        sendPublicMessage('Runde vorbei! Jetzt _°>einsteigen|/spielen<°_!');
     }
 
     /** advance the round to the next step */
@@ -422,6 +507,19 @@ var App = {};
         }
     }
 
+    function showRules(user, params, command) {
+        var rulesText = 'Willkommen zum Spiel VERRÜCKTE WORTE!';
+        rulesText += '°##°Das Spiel ähnelt Scrabble - es geht darum Buchstaben zu legen. Jeder Buchstabe hat einen gewissen Wert.';
+        rulesText += '°##°Jeder Spieler bekommt die gleiche Anzahl an Buchstaben um damit ein Wort zu legen.';
+        rulesText += '°##°Folgende Befehle sind wichtig:';
+        rulesText += '°##°/x WORT - reicht ein Wort ein, falls du die richtigen Buchstaben dafür hast!';
+        rulesText += '°##°/regeln - zeigt diese Hilfe an.';
+        rulesText += '°##°/spielen - damit tritst du dem Spiel bei!';
+        rulesText += '°##°/abwerfen - ersetzt alle Buchstaben in deiner Hand.';
+        rulesText += '°##°Viel Spaß!';
+        user.sendPrivateMessage(rulesText);
+    }
+
     App.chatCommands = {
         x: submitWord,
         submit: submitWord,
@@ -445,7 +543,14 @@ var App = {};
 
         dump: replaceLetters,
         abwerfen: replaceLetters,
-        ersetzen: replaceLetters
+        ersetzen: replaceLetters,
+
+        regeln: showRules,
+        rules: showRules
+    };
+
+    App.onUserJoined = function(user) {
+        user.sendPrivateMessage('Willkommen! Du kannst dem °>Spiel beitreten|/spielen<°. Oder die °>Regeln ansehen|/regeln<°.');
     };
 
 })();
