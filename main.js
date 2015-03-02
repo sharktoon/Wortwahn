@@ -549,6 +549,10 @@ var App = {};
         rules: showRules
     };
 
+    App.onPrivateMessage = function(privateMessage) {
+        submitWord(privateMessage.getAuthor(), privateMessage.getText(), 'p');
+    };
+
     App.onUserJoined = function(user) {
         user.sendPrivateMessage('Willkommen! Du kannst dem °>Spiel beitreten|/spielen<°. Oder die °>Regeln ansehen|/regeln<°.');
     };
