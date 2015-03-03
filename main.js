@@ -1,5 +1,6 @@
 require('helper.js');
 require('reward.js');
+require('dictionary.js');
 
 // LETTER: value
 var LetterValue = {
@@ -40,36 +41,6 @@ var ValueColorCodes = {
     5: 'M'
 };
 
-// 'WORD': { accepted: <int>, rejected: <int>, okay: true/false, used: <int> }
-var WordBase = {
-    'ALTER': { okay: true },
-    'BETT': { okay: true },
-    'CHROME': { okay: true },
-    'DOSEN': { okay: true },
-    'ESEL': { okay: true },
-    'FRIEDE': { okay: true },
-    'GARTEN': { okay: true },
-    'HAUS': { okay: true },
-    'INSEL': { okay: true },
-    'JAGEN': { okay: true },
-    'KLUG': { okay: true },
-    'LERNE': { okay: true },
-    'MANN': { okay: true },
-    'NOT': { okay: true },
-    'OLDIE': { okay: true },
-    'POKER': { okay: true },
-    'QUARK': { okay: true },
-    'ROT': { okay: true },
-    'SAUFEN': { okay: true },
-    'TOD': { okay: true },
-    'UHR': { okay: true },
-    'VOGEL': { okay: true },
-    'WALD': { okay: true },
-    'XYLOPHON': { okay: true },
-    'YPSILON': { okay: true },
-    'ZONE': { okay: true }
-};
-
 // userId: { letters: [], word: '', value: 0, step: NONE/OKAY/VOTE/ACCEPT/REJECT, win: true/false }
 var Round = {
     // none,submit,vote,score
@@ -87,7 +58,7 @@ var LastRound = {
 
 var Candidates = [];
 
-// 'WORD': { accept: [], reject: [] }
+// 'WORD': { accept: [], reject: [], submit: [] }
 var Voting = {};
 
 /** various settings for the game */
@@ -121,6 +92,7 @@ var Settings = {
         Z: 1//1.1
     },
     LetterCount: 8,
+    ValueToAccept: 10,
     Timer: {
         score: 3000,
         signup: 5000,
@@ -246,16 +218,29 @@ var App = {};
             return;
         }
 
-        obj.value = value;
-        obj.word = entry;
+        var acceptance = Dictionary.check(entry);
 
+        if (acceptance === 'vote') {
+            obj.value = value;
+            obj.word = entry;
 
-        // TODO: not everything should be voted on!
-        obj.step = 'vote';
-        Voting[entry] = { accept: [], reject: [] };
-        sendPrivateMessage(user, 'Dein Wort "' + entry + '" hat den Wert ' + value + ' - falls es von den anderen als gültig akzeptiert wird!');
+            obj.step = 'vote';
+            if (Voting.hasOwnProperty(entry)) {
+                Voting[entry].submit.push(userId);
+            } else {
+                Voting[entry] = { accept: [], reject: [], submit: [userId] };
+            }
+            sendPrivateMessage(user, 'Dein Wort "' + entry + '" hat den Wert ' + value + ' - falls es von den anderen als gültig akzeptiert wird!');
+        } else if (acceptance === 'accept') {
+            obj.value = value;
+            obj.word = entry;
 
-        // TODO: check for end of submit stage!
+            obj.step = 'okay';
+            sendPrivateMessage(user, 'Dein Wort "' + entry + '" hat den Wert ' + value + '.');
+        } else {
+            sendPrivateMessage(user, 'Die Buchstabenfolge "' + entry + '" ergibt leider kein akzeptiertes Wort!');
+            return;
+        }
     }
 
     /** replaces all letters a user has */
@@ -520,9 +505,12 @@ var App = {};
         rulesText += '°##°Jeder Spieler bekommt die gleiche Anzahl an Buchstaben um damit ein Wort zu legen.';
         rulesText += '°##°Folgende Befehle sind wichtig:';
         rulesText += '°##°/x WORT - reicht ein Wort ein, falls du die richtigen Buchstaben dafür hast!';
+        rulesText += '°##°    Eine private Nachricht an die App geht dafür auch.';
         rulesText += '°##°/regeln - zeigt diese Hilfe an.';
         rulesText += '°##°/spielen - damit tritst du dem Spiel bei!';
         rulesText += '°##°/abwerfen - ersetzt alle Buchstaben in deiner Hand.';
+        rulesText += '°##°/punkte - zeigt die Rangliste für die Saison an';
+        rulesText += '°##°/altepunkte - zeigt die Rangliste für die vergangene Saison an';
         rulesText += '°##°Viel Spaß!';
         sendPrivateMessage(user, rulesText);
     }
@@ -562,7 +550,9 @@ var App = {};
         liste: Reward.showScores,
 
         alteliste: Reward.showOldScores,
-        altepunkte: Reward.showOldScores
+        altepunkte: Reward.showOldScores,
+
+        teach: Dictionary.teach
     };
 
     App.onPrivateMessage = function(privateMessage) {
@@ -571,6 +561,17 @@ var App = {};
 
     App.onUserJoined = function(user) {
         sendPrivateMessage(user, 'Willkommen! Du kannst dem °>Spiel beitreten|/spielen<°. Oder die °>Regeln ansehen|/regeln<°.');
+    };
+
+    var SETTINGS = '_SETTINGS_';
+    App.onAppStart = function() {
+        if (KnuddelsServer.getPersistence().hasObject(SETTINGS)) {
+            Settings = KnuddelsServer.getPersistence().getObject(SETTINGS);
+        }
+    };
+
+    App.onShutdown = function() {
+        KnuddelsServer.getPersistence().setObject(SETTINGS, Settings);
     };
 
 })();
