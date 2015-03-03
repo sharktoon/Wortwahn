@@ -1,3 +1,6 @@
+require('helper.js');
+require('reward.js');
+
 // LETTER: value
 var LetterValue = {
     A: 4,
@@ -124,6 +127,14 @@ var Settings = {
         submit: 30000,
         submitFinal: 5000,
         vote: 5000
+    },
+    Season: {
+        id: '2015-03',
+        name: 'März'
+    },
+    LastSeason: {
+        id: '2015-02',
+        name: 'Februar'
     }
 };
 
@@ -163,11 +174,6 @@ var App = {};
         }
         result += '°r°';
         return result;
-    }
-
-    /** convenience function - so I only see warning once */
-    function sendPublicMessage(text) {
-        KnuddelsServer.getDefaultBotUser().sendPublicMessage(text);
     }
 
     /** retrieve value of the provided word - returns -1 if word was not possible */
@@ -212,12 +218,12 @@ var App = {};
     /** submit a word by a user */
     function submitWord(user, params, command) {
         if (Round.stage != 'submit') {
-            user.sendPrivateMessage('In dieser Runde können gerade keine Worte eingereicht werden!');
+            sendPrivateMessage(user, 'In dieser Runde können gerade keine Worte eingereicht werden!');
             return;
         }
         var userId = user.getUserId();
         if (!Round.players.hasOwnProperty(userId)) {
-            user.sendPrivateMessage('Diese Runde läuft noch ohne dich! Bitte gedulde dich etwas.');
+            sendPrivateMessage(user, 'Diese Runde läuft noch ohne dich! Bitte gedulde dich etwas.');
             return;
         }
 
@@ -230,13 +236,13 @@ var App = {};
         var entry = params.trim().toUpperCase();
 
         if (entry.length == 0) {
-            user.sendPrivateMessage('Du musst ein Wort eingeben.');
+            sendPrivateMessage(user, 'Du musst ein Wort eingeben.');
             return;
         }
 
         var value = getWordValue(obj.letters, entry);
         if (value < 0) {
-            user.sendPrivateMessage('Das Wort "' + entry + '" ist mit deinen Buchstaben leider nicht möglich!°##°Du hast diese Buchstaben:' + lettersToString(obj.letters));
+            sendPrivateMessage(user, 'Das Wort "' + entry + '" ist mit deinen Buchstaben leider nicht möglich!°##°Du hast diese Buchstaben:' + lettersToString(obj.letters));
             return;
         }
 
@@ -247,7 +253,7 @@ var App = {};
         // TODO: not everything should be voted on!
         obj.step = 'vote';
         Voting[entry] = { accept: [], reject: [] };
-        user.sendPrivateMessage('Dein Wort "' + entry + '" hat den Wert ' + value + ' - falls es von den anderen als gültig akzeptiert wird!');
+        sendPrivateMessage(user, 'Dein Wort "' + entry + '" hat den Wert ' + value + ' - falls es von den anderen als gültig akzeptiert wird!');
 
         // TODO: check for end of submit stage!
     }
@@ -260,7 +266,7 @@ var App = {};
             Round.players[userId].letters = [];
             refillLetters(Round.players[userId].letters);
 
-            user.sendPrivateMessage('Deine Buchstaben sind nun:' + lettersToString(Round.players[userId].letters));
+            sendPrivateMessage(user, 'Deine Buchstaben sind nun:' + lettersToString(Round.players[userId].letters));
         }
     }
 
@@ -287,7 +293,7 @@ var App = {};
             refillLetters(obj.letters);
             Round.players[userId] = obj;
 
-            user.sendPrivateMessage('Deine Buchstaben diese Runde:' + lettersToString(obj.letters));
+            sendPrivateMessage(user, 'Deine Buchstaben diese Runde:' + lettersToString(obj.letters));
         }
     }
 
@@ -296,7 +302,7 @@ var App = {};
     function joinGame(user, params, command) {
         var userId = user.getUserId();
         if (Round.stage != 'none') {
-            user.sendPrivateMessage('Momentan kannst du nicht einsteigen. Habe bitte einen Moment Geduld. Sobald das nächste Spiel losgeht, wirst du informiert!');
+            sendPrivateMessage(user, 'Momentan kannst du nicht einsteigen. Habe bitte einen Moment Geduld. Sobald das nächste Spiel losgeht, wirst du informiert!');
             Candidates.push(userId);
             return;
         }
@@ -339,13 +345,13 @@ var App = {};
         var word = params.trim().toUpperCase();
         if (Voting.hasOwnProperty(word)) {
             if (hasVoted(Voting[word], user.getUserId())) {
-                user.sendPrivateMessage('Du hast deine Stimme bereits für das Wort "' + word + '" abgegeben.');
+                sendPrivateMessage(user, 'Du hast deine Stimme bereits für das Wort "' + word + '" abgegeben.');
             } else {
                 Voting[word].accept.push(user.getUserId());
-                user.sendPrivateMessage('Du hast deine Stimme für das Wort "' + word + '" abgegeben: Du findest es okay.');
+                sendPrivateMessage(user, 'Du hast deine Stimme für das Wort "' + word + '" abgegeben: Du findest es okay.');
             }
         } else {
-            user.sendPrivateMessage('Über das Wort "' + word + '" wird gerade nicht abgestimmt.');
+            sendPrivateMessage(user, 'Über das Wort "' + word + '" wird gerade nicht abgestimmt.');
         }
     }
 
@@ -353,13 +359,13 @@ var App = {};
         var word = params.trim().toUpperCase();
         if (Voting.hasOwnProperty(word)) {
             if (hasVoted(Voting[word], user.getUserId())) {
-                user.sendPrivateMessage('Du hast deine Stimme bereits für das Wort "' + word + '" abgegeben.');
+                sendPrivateMessage(user, 'Du hast deine Stimme bereits für das Wort "' + word + '" abgegeben.');
             } else {
                 Voting[word].reject.push(user.getUserId());
-                user.sendPrivateMessage('Du hast deine Stimme für das Wort "' + word + '" abgegeben: Du findest es NICHT okay.');
+                sendPrivateMessage(user, 'Du hast deine Stimme für das Wort "' + word + '" abgegeben: Du findest es NICHT okay.');
             }
         } else {
-            user.sendPrivateMessage('Über das Wort "' + word + '" wird gerade nicht abgestimmt.');
+            sendPrivateMessage(user, 'Über das Wort "' + word + '" wird gerade nicht abgestimmt.');
         }
     }
 
@@ -433,7 +439,7 @@ var App = {};
                 }
 
                 if (entry.step == 'okay' || entry.step == 'accept') {
-                    text += '°##°- ' + user.getNick() + ': "' + entry.word + '" für ' + entry.value + ' Punkte';
+                    text += '°##°- ' + Reward.showUser(user) + ': "' + entry.word + '" für ' + entry.value + ' Punkte';
 
                     consumeLetters(entry);
 
@@ -452,7 +458,8 @@ var App = {};
         if (bestEntries.length > 0) {
             for (var i = 0; i < bestEntries.length; ++i) {
                 var user = KnuddelsServer.getUser(bestEntries[i]);
-                text += ' ' + user.getNick();
+                text += ' ' + Reward.showUser(user);
+                Reward.awardPoints(user, 1);
             }
         } else {
             text += ' -';
@@ -517,7 +524,7 @@ var App = {};
         rulesText += '°##°/spielen - damit tritst du dem Spiel bei!';
         rulesText += '°##°/abwerfen - ersetzt alle Buchstaben in deiner Hand.';
         rulesText += '°##°Viel Spaß!';
-        user.sendPrivateMessage(rulesText);
+        sendPrivateMessage(user, rulesText);
     }
 
     App.chatCommands = {
@@ -546,7 +553,16 @@ var App = {};
         ersetzen: replaceLetters,
 
         regeln: showRules,
-        rules: showRules
+        rules: showRules,
+
+        scores: Reward.showScores,
+        punkte: Reward.showScores,
+        highscore: Reward.showScores,
+        brag: Reward.showScores,
+        liste: Reward.showScores,
+
+        alteliste: Reward.showOldScores,
+        altepunkte: Reward.showOldScores
     };
 
     App.onPrivateMessage = function(privateMessage) {
@@ -554,7 +570,7 @@ var App = {};
     };
 
     App.onUserJoined = function(user) {
-        user.sendPrivateMessage('Willkommen! Du kannst dem °>Spiel beitreten|/spielen<°. Oder die °>Regeln ansehen|/regeln<°.');
+        sendPrivateMessage(user, 'Willkommen! Du kannst dem °>Spiel beitreten|/spielen<°. Oder die °>Regeln ansehen|/regeln<°.');
     };
 
 })();
