@@ -75,6 +75,11 @@ var Dictionary = {};
 
     function teach(user, word) {
         if (user.isChannelModerator() || user.isChannelOwner()) {
+            word = word.trim().toUpperCase();
+            if (word.length > Settings.LetterCount) {
+                sendPrivateMessage(user, 'Das Wort "' + word + '" ist nicht möglich. Zu lang.');
+                return;
+            }
             var persistence = KnuddelsServer.getPersistence();
             persistence.setNumber(word, VALUE_OKAY);
             sendPrivateMessage(user, 'Das Wort "' + word + '" ist jetzt in der Liste der bekannten Worte.');
@@ -95,6 +100,11 @@ var Dictionary = {};
 
     function forbid(user, word) {
         if (user.isChannelModerator() || user.isChannelOwner()) {
+            word = word.trim().toUpperCase();
+            if (word.length > Settings.LetterCount) {
+                sendPrivateMessage(user, 'Das Wort "' + word + '" ist nicht möglich. Zu lang.');
+                return;
+            }
             var persistence = KnuddelsServer.getPersistence();
             persistence.setNumber(word, VALUE_REJECT);
             sendPrivateMessage(user, 'Das Wort "' + word + '" ist jetzt verboten.');
