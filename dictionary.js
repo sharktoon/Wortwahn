@@ -41,35 +41,75 @@ var Dictionary = {};
         'ZONE': { okay: true }
     };
 
+    var STORAGE = "_STORAGE_";
+    var STORAGE_SIZE = "SIZE_STORAGE";
+
+    function store() {
+        var persistence = KnuddelsServer.getPersistence();
+
+        var metaCount = 0;
+        var wordList = [];
+        var dataCount = 0;
+
+        for (var word in WordBase) {
+            if (dataCount > 90000) {
+                persistence.setObject(STORAGE + metaCount, wordList);
+
+                wordList = [];
+                dataCount = 0;
+                ++metaCount;
+            }
+
+            if (WordBase.hasOwnProperty(word) && WordBase[word].okay) {
+                wordList.push(word);
+                dataCount += word.length;
+                dataCount += 4;
+            }
+        }
+
+        persistence.setObject(STORAGE + metaCount, wordList);
+        ++metaCount;
+
+        persistence.setNumber(STORAGE_SIZE, metaCount);
+    }
+
+    function load() {
+        var persistence = KnuddelsServer.getPersistence();
+
+        var metaNumber = persistence.getNumber(STORAGE_SIZE, 0);
+        for(var metaCount = 0; metaCount < metaNumber; ++metaCount) {
+            var wordList = persistence.getObject(STORAGE + metaCount);
+
+            if (wordList) {
+                for (var i = 0; i < wordList.length; ++i) {
+                    WordBase[wordList[i]] = {okay: true};
+                }
+            }
+        }
+    }
+
     function checkWord(word) {
         var result = 'vote';
         if (WordBase.hasOwnProperty(word)) {
             if (WordBase[word].okay) {
                 result = 'accept';
-            } else {
-                result = 'reject';
+            } else if (WordBase[word].votes && WordBase[word].votes > Settings.ValueToAccept) {
+                result = 'accept';
             }
-        }
-
-        var persistence = KnuddelsServer.getPersistence();
-        var value = persistence.getNumber(word, 0);
-
-        if (value == VALUE_OKAY) {
-            result = 'accept';
-        } else if (value == VALUE_REJECT) {
-            result = 'reject';
-        } else if (value > Settings.ValueToAccept && Settings.ValueToAccept > 0) {
-            result = 'accept';
         }
 
         return result;
     }
 
     function userAccept(word) {
-        var persistence = KnuddelsServer.getPersistence();
-        var oldvalue = persistance.getNumber(word, 0);
-        if (oldvalue !== VALUE_OKAY && oldvalue !== VALUE_REJECT) {
-            persistence.addNumber(word, 1);
+        word = word.toUpperCase();
+
+        if (WordBase.hasOwnProperty(word)) {
+            if (WordBase[word].votes) {
+                WordBase[word].votes += 1;
+            } else {
+                WordBase[word].votes = 1;
+            }
         }
     }
 
@@ -80,8 +120,8 @@ var Dictionary = {};
                 sendPrivateMessage(user, 'Das Wort "' + word + '" ist nicht möglich. Zu lang.');
                 return;
             }
-            var persistence = KnuddelsServer.getPersistence();
-            persistence.setNumber(word, VALUE_OKAY);
+
+            WordBase[word] = { okay: true };
             sendPrivateMessage(user, 'Das Wort "' + word + '" ist jetzt in der Liste der bekannten Worte.');
         } else {
             sendPrivateMessage(user, 'Das klappt so nicht.');
@@ -90,8 +130,9 @@ var Dictionary = {};
 
     function forget(user, word) {
         if (user.isChannelModerator() || user.isChannelOwner()) {
-            var persistence = KnuddelsServer.getPersistence();
-            persistence.deleteNumber(word);
+            word = word.trim().toUpperCase();
+            delete WordBase[word];
+
             sendPrivateMessage(user, 'Das Wort "' + word + '" ist aus den Listen genommen worden.');
         } else {
             sendPrivateMessage(user, 'Das klappt so nicht.');
@@ -105,8 +146,7 @@ var Dictionary = {};
                 sendPrivateMessage(user, 'Das Wort "' + word + '" ist nicht möglich. Zu lang.');
                 return;
             }
-            var persistence = KnuddelsServer.getPersistence();
-            persistence.setNumber(word, VALUE_REJECT);
+            WordBase[word] = { forbidden: true };
             sendPrivateMessage(user, 'Das Wort "' + word + '" ist jetzt verboten.');
         } else {
             sendPrivateMessage(user, 'Das klappt so nicht.');
@@ -114,6 +154,9 @@ var Dictionary = {};
     }
 
     Dictionary = {
+        store: store,
+        load: load,
+
         check: checkWord,
         userAccept: userAccept,
         teach: teach,

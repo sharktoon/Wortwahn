@@ -552,7 +552,8 @@ var App = {};
         alteliste: Reward.showOldScores,
         altepunkte: Reward.showOldScores,
 
-        teach: Dictionary.teach
+        teach: Dictionary.teach,
+        forget: Dictionary.forget
     };
 
     App.onPrivateMessage = function(privateMessage) {
@@ -568,6 +569,12 @@ var App = {};
         if (KnuddelsServer.getPersistence().hasObject(SETTINGS)) {
             Settings = KnuddelsServer.getPersistence().getObject(SETTINGS);
         }
+
+        Dictionary.load();
+    };
+
+    App.onPrepareShutdown = function() {
+        Dictionary.store();
     };
 
     App.onShutdown = function() {
