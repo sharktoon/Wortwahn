@@ -13,7 +13,7 @@ var Reward = {};
 
     // convenience function, will show the picture of the user in front of the name
     function showUser(user) {
-        var nick = user.getNick();
+        var nick = user.getProfileLink();
 
         return nick;
     }

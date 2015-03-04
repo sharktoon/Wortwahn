@@ -220,6 +220,19 @@ var App = {};
 
         var acceptance = Dictionary.check(entry);
 
+        if (acceptance === 'reject') {
+            sendPrivateMessage(user, 'Die Buchstabenfolge "' + entry + '" ergibt leider kein akzeptiertes Wort!');
+            return;
+        }
+
+        if (obj.step != 'none') {
+            var index = Voting[obj.word].submit.indexOf(userId);
+            Voting[obj.word].submit.splice(index, 1);
+            if (Voting[obj.word].submit.length == 0) {
+                delete Voting[obj.word];
+            }
+        }
+
         if (acceptance === 'vote') {
             obj.value = value;
             obj.word = entry;
@@ -237,9 +250,6 @@ var App = {};
 
             obj.step = 'okay';
             sendPrivateMessage(user, 'Dein Wort "' + entry + '" hat den Wert ' + value + '.');
-        } else {
-            sendPrivateMessage(user, 'Die Buchstabenfolge "' + entry + '" ergibt leider kein akzeptiertes Wort!');
-            return;
         }
     }
 
@@ -321,6 +331,9 @@ var App = {};
             return true;
         }
         if (voteBox.reject.indexOf(userId) != -1) {
+            return true;
+        }
+        if (voteBox.submit.indexOf(userId) != -1) {
             return true;
         }
         return false;
@@ -411,12 +424,19 @@ var App = {};
         var bestEntries = [];
 
         var text = 'Die Beiträge diese Runde:';
+
+        for (var word in Voting) {
+            if (Voting.hasOwnProperty(word) && Voting[word].accept.length > Voting[word].reject.length) {
+                Dictionary.userAccept(word);
+            }
+        }
+
         for (var userId in Round.players) {
             if (Round.players.hasOwnProperty(userId)) {
                 var user = KnuddelsServer.getUser(userId);
                 var entry = Round.players[userId];
                 if (entry.step == 'vote') {
-                    if (Voting[entry.word].accept.length >= Voting[entry.word].reject.length) {
+                    if (Voting[entry.word].accept.length > Voting[entry.word].reject.length) {
                         entry.step = 'accept';
                     } else {
                         entry.step = 'reject';
@@ -553,7 +573,8 @@ var App = {};
         altepunkte: Reward.showOldScores,
 
         teach: Dictionary.teach,
-        forget: Dictionary.forget
+        forget: Dictionary.forget,
+        showuseraccept: Dictionary.showUserList
     };
 
     App.onPrivateMessage = function(privateMessage) {

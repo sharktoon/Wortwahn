@@ -113,6 +113,19 @@ var Dictionary = {};
         }
     }
 
+    function showUserAccept(user) {
+        if (user.isChannelModerator() || user.isChannelOwner()) {
+            var wordList = [];
+
+            for (var word in WordBase) {
+                if (WordBase.hasOwnProperty(word) && WordBase[word].votes) {
+                    wordList.push(word);
+                }
+            }
+            sendPrivateMessage(user, JSON.stringify(wordList));
+        }
+    }
+
     function teach(user, word) {
         if (user.isChannelModerator() || user.isChannelOwner()) {
             word = word.trim().toUpperCase();
@@ -156,6 +169,8 @@ var Dictionary = {};
     Dictionary = {
         store: store,
         load: load,
+
+        showUserList: showUserAccept,
 
         check: checkWord,
         userAccept: userAccept,
