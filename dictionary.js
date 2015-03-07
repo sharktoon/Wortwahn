@@ -136,6 +136,8 @@ var Dictionary = {};
 
             WordBase[word] = { okay: true };
             sendPrivateMessage(user, 'Das Wort "' + word + '" ist jetzt in der Liste der bekannten Worte.');
+
+            Reward.awardHat(user, "MOD");
         } else {
             sendPrivateMessage(user, 'Das klappt so nicht.');
         }

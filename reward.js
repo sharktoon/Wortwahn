@@ -16,9 +16,16 @@ var Reward = {};
 
     // convenience function, will show the picture of the user in front of the name
     function showUser(user) {
+        var icon = "";
+        if (user.getPersistence().hasString(WORN_HAT)) {
+            var hatId = user.getPersistence().getString(WORN_HAT);
+            if (hatId && Hats.hasOwnProperty(hatId)) {
+                icon = "°>" + KnuddelsServer.getFullSystemImagePath(Hats[hatId].image) + "<° ";
+            }
+        }
         var nick = user.getProfileLink();
 
-        return nick;
+        return icon + nick;
     }
 
     function showScoreEntries(entries) {
@@ -107,11 +114,24 @@ var Reward = {};
     function showHatShopCategory(user, category) {
         var cat = HatCategories[category];
         var message = "Hutladen - Kategorie " + cat.name;
+        message += BR + "Du hast " + user.getPersistence().getNumber(CREDITS, 0) + " P";
+
+        var ownedList = [];
+        if (user.getPersistence().hasObject(OWNED_HATS)) {
+            ownedList = user.getPersistence().getObject(OWNED_HATS);
+        }
 
         for (var i = 0; i < cat.hats.length; ++i) {
             var hat = Hats[cat.hats[i]];
             if (hat !== undefined) {
+                var extra = "";
+                if (ownedList.indexOf(hat.id) != -1) {
+                    extra = " (gehört dir)";
+                } else if (hat.price > 0) {
+                    extra = " (" + hat.price + " P)";
+                }
                 message += BR + "- °>" + KnuddelsServer.getFullSystemImagePath(hat.image) + "<° °>>>auswählen|/hatshop " + hat.id + "<°";
+                message += extra;
             }
         }
         message += BR + "°>zurück|/hatshop<°";
@@ -159,7 +179,7 @@ var Reward = {};
     }
 
     function awardHat(user, hatId) {
-        var hat = Hats[param];
+        var hat = Hats[hatId];
         if (hat === undefined) return;
 
         var ownedList = [];
@@ -192,7 +212,7 @@ var Reward = {};
 
         var credits = user.getPersistence().getNumber(CREDITS, 0);
         if (hat.price > credits) {
-            sendPrivateMessage("Du kannst dir den Hut °>" + KnuddelsServer.getFullSystemImagePath(hat.image) + "<° noch nicht leisten! Spiele weiter!");
+            sendPrivateMessage(user, "Du kannst dir den Hut °>" + KnuddelsServer.getFullSystemImagePath(hat.image) + "<° noch nicht leisten! Spiele weiter!");
             return;
         }
 
@@ -205,6 +225,8 @@ var Reward = {};
         showShop: showHatShop,
         equipHat: equipHat,
         buyHat: buyHat,
+
+        awardHat: awardHat,
 
         showUser: showUser,
         awardPoints: awardPoints,
