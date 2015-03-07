@@ -572,6 +572,10 @@ var App = {};
         alteliste: Reward.showOldScores,
         altepunkte: Reward.showOldScores,
 
+        hatshop: Reward.showShop,
+        buyhat: Reward.buyHat,
+        equiphat: Reward.equipHat,
+
         teach: Dictionary.teach,
         forget: Dictionary.forget,
         showuseraccept: Dictionary.showUserList
