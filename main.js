@@ -46,6 +46,7 @@ var Round = {
     // none,submit,vote,score
     stage: 'none',
     target: 0,
+    letters: [],
     players: {}
 };
 
@@ -53,8 +54,9 @@ var Round = {
 var LastRound = {
     stage: 'score',
     target: 0,
+    letters: [],
     players: {}
-}
+};
 
 var Candidates = [];
 
@@ -91,7 +93,7 @@ var Settings = {
         Y: 1,//0.1,
         Z: 1//1.1
     },
-    LetterCount: 8,
+    LetterCount: 12,
     ValueToAccept: 10,
     Timer: {
         score: 3000,
@@ -142,7 +144,7 @@ var App = {};
         for (var i = 0; i < letters.length; ++i) {
             var colorCode = ValueColorCodes[LetterValue[letters[i]]];
             //result = result + letters[i] + '(' + LetterValue[letters[i]] + ') ';
-            result = result + '°r' + colorCode + '°' + letters[i] + '°r10°' + LetterValue[letters[i]] + ' ';
+            result = result + '°r' + colorCode + '°_' + letters[i] + '_°r10°' + LetterValue[letters[i]] + '  ';
         }
         result += '°r°';
         return result;
@@ -175,46 +177,29 @@ var App = {};
         return value;
     }
 
-    /** removes the letters for the supplied word */
-    function consumeLetters(entry) {
-        for (var i = 0; i < entry.word.length; ++i) {
-            for (var k = 0; k < entry.letters.length; ++k) {
-                if (entry.word[i] == entry.letters[k]) {
-                    entry.letters.splice(k, 1);
-                    break;
-                }
-            }
-        }
-    }
-
     /** submit a word by a user */
-    function submitWord(user, params, command) {
+    function submitWord(user, params) {
         if (Round.stage != 'submit') {
             sendPrivateMessage(user, 'In dieser Runde können gerade keine Worte eingereicht werden!');
             return;
         }
         var userId = user.getUserId();
         if (!Round.players.hasOwnProperty(userId)) {
-            sendPrivateMessage(user, 'Diese Runde läuft noch ohne dich! Bitte gedulde dich etwas.');
-            return;
+            startPlayer(userId);
         }
 
         var obj = Round.players[userId];
-        //if (obj.step != 'none') {
-        //    user.sendPrivateMessage('Du hast diese Runde schon ein Wort eingereicht!');
-        //    return;
-        //}
 
         var entry = params.trim().toUpperCase();
 
         if (entry.length == 0) {
-            sendPrivateMessage(user, 'Du musst ein Wort eingeben.');
+            sendPrivateMessage(user, 'Du musst ein Wort eingeben.°##°Du kannst diese Buchstaben verwenden:' + lettersToString(Round.letters));
             return;
         }
 
-        var value = getWordValue(obj.letters, entry);
+        var value = getWordValue(Round.letters, entry);
         if (value < 0) {
-            sendPrivateMessage(user, 'Das Wort "' + entry + '" ist mit deinen Buchstaben leider nicht möglich!°##°Du hast diese Buchstaben:' + lettersToString(obj.letters));
+            sendPrivateMessage(user, 'Das Wort "' + entry + '" ist mit den Buchstaben leider nicht möglich!°##°Du kannst diese Buchstaben verwenden:' + lettersToString(Round.letters));
             return;
         }
 
@@ -225,7 +210,7 @@ var App = {};
             return;
         }
 
-        if (obj.step != 'none') {
+        if (obj.step != 'none' && Voting.hasOwnProperty(obj.word)) {
             var index = Voting[obj.word].submit.indexOf(userId);
             Voting[obj.word].submit.splice(index, 1);
             if (Voting[obj.word].submit.length == 0) {
@@ -253,18 +238,6 @@ var App = {};
         }
     }
 
-    /** replaces all letters a user has */
-    function replaceLetters(user) {
-        var userId = user.getUserId();
-
-        if (Round.players.hasOwnProperty(userId)) {
-            Round.players[userId].letters = [];
-            refillLetters(Round.players[userId].letters);
-
-            sendPrivateMessage(user, 'Deine Buchstaben sind nun:' + lettersToString(Round.players[userId].letters));
-        }
-    }
-
     /** initializes the player instance - inside the round object */
     function startPlayer(userId) {
         if (Round.players.hasOwnProperty(userId)) {
@@ -274,75 +247,37 @@ var App = {};
         var user = KnuddelsServer.getUser(userId);
         if (user && user.isOnlineInChannel()) {
              var obj = {
-                letters: [],
                 step: 'none',
                 word: '',
                 value: -1,
                 win: false
-            }
+            };
 
-            if (LastRound.players.hasOwnProperty(userId)) {
-                obj.letters = LastRound.players[userId].letters;
-            }
-
-            refillLetters(obj.letters);
             Round.players[userId] = obj;
-
-            sendPrivateMessage(user, 'Deine Buchstaben diese Runde:' + lettersToString(obj.letters));
         }
     }
-
-    var gameStartingTimer = undefined;
-
-    function joinGame(user, params, command) {
-        var userId = user.getUserId();
-        if (Round.stage != 'none') {
-            sendPrivateMessage(user, 'Momentan kannst du nicht einsteigen. Habe bitte einen Moment Geduld. Sobald das nächste Spiel losgeht, wirst du informiert!');
-            Candidates.push(userId);
-            return;
-        }
-
-        startPlayer(userId);
-
-        var count = 0;
-        for (var player in Round.players) {
-            if (Round.players.hasOwnProperty(player)) {
-                ++count;
-            }
-        }
-        if (count >= 2) {
-            if (gameStartingTimer == undefined) {
-                sendPublicMessage('Spiel beginnt in ' + Settings.Timer.signup/1000 + ' Sekunden!');
-                setTimeout(function() {
-                    if (Round.stage == 'none') {
-                        beginSubmit();
-                    }
-                }, Settings.Timer.signup);
-            }
-        } else {
-            sendPublicMessage(count + ' Mitspieler angemeldet! Noch sind Plätze frei!');
-        }
-    }
-
 
     /** check if a user has already voted on a word - or not */
     function hasVoted(voteBox, userId) {
         if (voteBox.accept.indexOf(userId) != -1) {
-            return true;
+            return 'accept';
         }
         if (voteBox.reject.indexOf(userId) != -1) {
-            return true;
+            return 'reject';
         }
         if (voteBox.submit.indexOf(userId) != -1) {
-            return true;
+            return 'submit';
         }
-        return false;
+        return '';
     }
 
     function acceptSpelling(user, params, command) {
         var word = params.trim().toUpperCase();
         if (Voting.hasOwnProperty(word)) {
-            if (hasVoted(Voting[word], user.getUserId())) {
+            var voted = hasVoted(Voting[word], user.getUserId());
+            if (voted === 'submit') {
+                sendPrivateMessage(user, 'Du hast das Wort "' + word + '" selbst eingereicht.');
+            } else if (voted) {
                 sendPrivateMessage(user, 'Du hast deine Stimme bereits für das Wort "' + word + '" abgegeben.');
             } else {
                 Voting[word].accept.push(user.getUserId());
@@ -356,7 +291,10 @@ var App = {};
     function rejectSpelling(user, params, command) {
         var word = params.trim().toUpperCase();
         if (Voting.hasOwnProperty(word)) {
-            if (hasVoted(Voting[word], user.getUserId())) {
+            var voted = hasVoted(Voting[word], user.getUserId());
+            if (voted === 'submit') {
+                sendPrivateMessage(user, 'Du hast das Wort "' + word + '" selbst eingereicht.');
+            } else if (voted) {
                 sendPrivateMessage(user, 'Du hast deine Stimme bereits für das Wort "' + word + '" abgegeben.');
             } else {
                 Voting[word].reject.push(user.getUserId());
@@ -371,8 +309,10 @@ var App = {};
     function beginSubmit() {
         Round.target = 1 + RandomOperations.nextInt(20);
         Round.stage = 'submit';
+        Round.letters = [];
+        refillLetters(Round.letters);
 
-        sendPublicMessage('Kommt möglichst nahe an _' + Round.target + '_ heran! Worte können mit ""/x WORT"" eingereicht werden');
+        sendPublicMessage('Die Buchstaben diese Runde:' + lettersToString(Round.letters) + '! Worte können mit ""/x WORT"" eingereicht werden');
 
         function endSubmit() {
             if (Round.stage == 'submit') {
@@ -391,8 +331,10 @@ var App = {};
         }
 
         setTimeout(function() {
-            sendPublicMessage('Nur noch ' + Settings.Timer.submitFinal / 1000  + ' Sekunden! Mit /x WORT kann ein Wort eingereicht werden!');
-            setTimeout(endSubmit, Settings.Timer.submitFinal);
+            if (Round.stage == 'submit') {
+                sendPublicMessage('Nur noch ' + Settings.Timer.submitFinal / 1000  + ' Sekunden! Mit /x WORT kann ein Wort eingereicht werden!');
+                setTimeout(endSubmit, Settings.Timer.submitFinal);
+            }
         }, Settings.Timer.submit);
     }
 
@@ -420,8 +362,8 @@ var App = {};
     function beginScoring() {
         Round.stage = 'score';
 
-        var bestDelta = 100000;
-        var bestEntries = [];
+        var winWords = {};
+        var sortedWords = [];
 
         var text = 'Die Beiträge diese Runde:';
 
@@ -431,9 +373,9 @@ var App = {};
             }
         }
 
+        var totalWinners = 0;
         for (var userId in Round.players) {
             if (Round.players.hasOwnProperty(userId)) {
-                var user = KnuddelsServer.getUser(userId);
                 var entry = Round.players[userId];
                 if (entry.step == 'vote') {
                     if (Voting[entry.word].accept.length > Voting[entry.word].reject.length) {
@@ -444,33 +386,51 @@ var App = {};
                 }
 
                 if (entry.step == 'okay' || entry.step == 'accept') {
-                    text += '°##°- ' + Reward.showUser(user) + ': "' + entry.word + '" für ' + entry.value + ' Punkte';
+                    ++totalWinners;
+                    if (winWords.hasOwnProperty(entry.word)) {
+                        winWords[entry.word].winners.push(userId);
+                    } else {
+                        winWords[entry.word] = {
+                            winners: [userId],
+                            value: entry.value
+                        };
 
-                    consumeLetters(entry);
-
-                    var delta = Math.abs(Round.target - entry.value);
-                    if (delta < bestDelta) {
-                        bestEntries = [userId];
-                        bestDelta = delta;
-                    } else if (delta == bestDelta) {
-                        bestEntries.push(userId);
+                        var index = 0;
+                        for (; index < sortedWords.length; ++index) {
+                            if (winWords[sortedWords[index]] < entry.value) {
+                                break;
+                            }
+                        }
+                        sortedWords.splice(index, 0, entry.word);
                     }
                 }
             }
         }
 
-        text += "°##°Gewinner:";
-        if (bestEntries.length > 0) {
-            for (var i = 0; i < bestEntries.length; ++i) {
-                var user = KnuddelsServer.getUser(bestEntries[i]);
-                text += ' ' + Reward.showUser(user);
-                Reward.awardPoints(user, 1);
+        for (var i = 0; i < sortedWords.length; ++i) {
+            var word = sortedWords[i];
+            var value = winWords[sortedWords[i]].value;
+
+            text += '°##°- ' + word + ' (' + value + ' P): ';
+
+            var firstWinner = false;
+            for (var k = 0; k < winWords[word].winners.length; ++k) {
+                var user = KnuddelsServer.getUser(winWords[word].winners[k]);
+                Reward.awardPoints(user, value);
+                if (!firstWinner) {
+                    text += ', ';
+                }
+                firstWinner = true;
+
+                text += Reward.showUser(user);
             }
-        } else {
-            text += ' -';
         }
 
-        sendPublicMessage(text);
+        if (totalWinners > 0) {
+            sendPublicMessage(text);
+        } else {
+            sendPublicMessage("Keine Beiträge diese Runde!");
+        }
 
         setTimeout(function() {
             if(Round.stage == 'score') {
@@ -489,17 +449,23 @@ var App = {};
 
         Voting = {};
 
-        sendPublicMessage('Runde vorbei! Jetzt _°>einsteigen|/spielen<°_!');
+        sendPublicMessage('Runde vorbei! Nächste Runde startet gleich! Ihr könnt jederzeit den °>Hutladen|/Hutladen<° besuchen!');
+
+        setTimeout(function() {
+            if (Round.stage == 'none') {
+                beginSubmit();
+            }
+        }, Settings.Timer.signup);
     }
 
     /** advance the round to the next step */
-    function advanceStep(user, params, command) {
+    function advanceStep(user) {
+        if (!user.isChannelModerator() && !user.isChannelOwner()) {
+            return;
+        }
+
         if (Round.stage == 'none') {
-            for (var player in Round.players) {
-                if (Round.players.hasOwnProperty(player)) {
-                    beginSubmit();
-                }
-            }
+            beginSubmit();
         } else if (Round.stage == 'submit') {
             var skipVote = true;
             for (var entry in Voting) {
@@ -519,32 +485,42 @@ var App = {};
         }
     }
 
-    function showRules(user, params, command) {
+    function showRules(user) {
         var rulesText = 'Willkommen zum Spiel VERRÜCKTE WORTE!';
         rulesText += '°##°Das Spiel ähnelt Scrabble - es geht darum Buchstaben zu legen. Jeder Buchstabe hat einen gewissen Wert.';
-        rulesText += '°##°Jeder Spieler bekommt die gleiche Anzahl an Buchstaben um damit ein Wort zu legen.';
+        rulesText += '°##°Jeder Spieler bekommt die gleichen Buchstaben um damit ein Wort zu legen.';
         rulesText += '°##°Folgende Befehle sind wichtig:';
         rulesText += '°##°/x WORT - reicht ein Wort ein, falls du die richtigen Buchstaben dafür hast!';
         rulesText += '°##°    Eine private Nachricht an die App geht dafür auch.';
-        rulesText += '°##°/regeln - zeigt diese Hilfe an.';
-        rulesText += '°##°/spielen - damit tritst du dem Spiel bei!';
-        rulesText += '°##°/abwerfen - ersetzt alle Buchstaben in deiner Hand.';
-        rulesText += '°##°/punkte - zeigt die Rangliste für die Saison an';
-        rulesText += '°##°/altepunkte - zeigt die Rangliste für die vergangene Saison an';
+        rulesText += '°##°°>/regeln|/regeln<° - zeigt diese Hilfe an.';
+        rulesText += '°##°°>/punkte|/punkte<° - zeigt die Rangliste für die Saison an';
+        rulesText += '°##°°>/altepunkte|/altepunkte<° - zeigt die Rangliste für die vergangene Saison an';
+        rulesText += '°##°°>/hutladen|/hutladen<° - betrete den Hutladen, dort gibt es Symbole für Punkte';
+        rulesText += '°##°Und am Wichtigsten:';
         rulesText += '°##°Viel Spaß!';
         sendPrivateMessage(user, rulesText);
     }
 
+    function changeSettings(user, param) {
+        if (user.isChannelModerator() || user.isChannelOwner()) {
+            var newSettings = JSON.parse(param);
+
+            for (var piece in newSettings) {
+                if (Settings.hasOwnProperty(piece)) {
+                    Settings[piece] = newSettings[piece];
+                    sendPrivateMessage(user, 'Changed Settings.' + piece + ' to ' + Settings[piece]);
+                }
+            }
+        }
+    }
+
     App.chatCommands = {
+        settings: changeSettings,
+
         x: submitWord,
         submit: submitWord,
         spell: submitWord,
         wort: submitWord,
-
-        // game: joinGame,
-        spiel: joinGame,
-        join: joinGame,
-        spielen: joinGame,
 
         accept: acceptSpelling,
         richtig: acceptSpelling,
@@ -555,10 +531,6 @@ var App = {};
 
         // next: advanceStep,
         weiter: advanceStep,
-
-        dump: replaceLetters,
-        abwerfen: replaceLetters,
-        ersetzen: replaceLetters,
 
         regeln: showRules,
         rules: showRules,
@@ -572,6 +544,9 @@ var App = {};
         alteliste: Reward.showOldScores,
         altepunkte: Reward.showOldScores,
 
+        hutladen: Reward.showShop,
+        laden: Reward.showShop,
+        einkaufen: Reward.showShop,
         hatshop: Reward.showShop,
         buyhat: Reward.buyHat,
         equiphat: Reward.equipHat,
@@ -586,7 +561,25 @@ var App = {};
     };
 
     App.onUserJoined = function(user) {
-        sendPrivateMessage(user, 'Willkommen! Du kannst dem °>Spiel beitreten|/spielen<°. Oder die °>Regeln ansehen|/regeln<°.');
+        sendPrivateMessage(user, 'Willkommen! Einige Befehle werden erklärt, wenn du °>/regeln|/regeln<° eingibst.');
+        if (Round.stage == 'submit') {
+            sendPrivateMessage(user, 'Folgende Buchstaben sind gerade verfügbar: ' + lettersToString(Round.letters) + '!°##°Mit /x WORT kannst du noch schnell ein Wort einreichen. Alternativ auch als /p an mich!');
+        }
+
+        var OWNED_HATS = '_HATS_OWNED_';
+
+        var AWARD_M = 'NPM', AWARD_F = 'NPF';
+        var ownedList = [];
+        if (user.getPersistence().hasObject(OWNED_HATS)) {
+            ownedList = user.getPersistence().getObject(OWNED_HATS);
+        }
+        if (ownedList.indexOf(AWARD_M) === -1 && ownedList.indexOf[AWARD_F] === -1) {
+            if (user.getGender() == Gender.Female) {
+                Reward.awardHat(user, AWARD_F);
+            } else {
+                Reward.awardHat(user, AWARD_M);
+            }
+        }
     };
 
     var SETTINGS = '_SETTINGS_';
@@ -596,6 +589,8 @@ var App = {};
         }
 
         Dictionary.load();
+
+        beginSubmit();
     };
 
     App.onPrepareShutdown = function() {
