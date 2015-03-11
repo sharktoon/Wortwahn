@@ -95,6 +95,10 @@ var Settings = {
     },
     LetterCount: 12,
     ValueToAccept: 10,
+    BonusTarget: {
+        Points: 15,
+        MinPlayers: 3
+    },
     Timer: {
         score: 3000,
         signup: 5000,
@@ -111,6 +115,8 @@ var Settings = {
         name: 'Februar'
     }
 };
+
+var SettingsBlueprint = Settings;
 
 var App = {};
 
@@ -307,12 +313,12 @@ var App = {};
 
     /** starts submit phase - every player gets letters assigned */
     function beginSubmit() {
-        Round.target = 1 + RandomOperations.nextInt(20);
+        Round.target = RandomOperations.nextInt(10) + RandomOperations.nextInt(10);
         Round.stage = 'submit';
         Round.letters = [];
         refillLetters(Round.letters);
 
-        sendPublicMessage('Die Buchstaben diese Runde:°#°' + lettersToString(Round.letters) + '°#°Worte können mit ""/x WORT"" eingereicht werden');
+        sendPublicMessage('Die Buchstaben diese Runde:°#°' + lettersToString(Round.letters) + '°#°Worte können mit ""/x WORT"" eingereicht werden.°#°Bonuspunkte wenn du es schaffst genau ' + Round.target + ' Punkte zu erreichen!');
 
         function endSubmit() {
             if (Round.stage == 'submit') {
@@ -373,12 +379,16 @@ var App = {};
             }
         }
 
+        var allowedFreePass = Settings.LetterCount - 2 - RandomOperations.nextInt(4);
+
         var totalWinners = 0;
         for (var userId in Round.players) {
             if (Round.players.hasOwnProperty(userId)) {
                 var entry = Round.players[userId];
                 if (entry.step == 'vote') {
                     if (Voting[entry.word].accept.length > Voting[entry.word].reject.length) {
+                        entry.step = 'accept';
+                    } else if (entry.word.length <= allowedFreePass && Voting[entry.word].accept.length + Voting[entry.word].submit.length > Voting[entry.word].reject.length) {
                         entry.step = 'accept';
                     } else {
                         entry.step = 'reject';
@@ -407,11 +417,21 @@ var App = {};
             }
         }
 
+        var extraPoints = Settings.BonusTarget.Points;
+        if (totalWinners < Settings.BonusTarget.MinPlayers) {
+            extraPoints = 1;
+        }
         for (var i = 0; i < sortedWords.length; ++i) {
             var word = sortedWords[i];
             var value = winWords[sortedWords[i]].value;
 
-            text += '°#°- ' + word + ' (' + value + ' P): ';
+            if (entry.value === Round.target && extraPoints) {
+                text += '°#°- _' + word + '_ (' + value + ' + ' + extraPoints + ' P): ';
+                value += extraPoints;
+            } else {
+                text += '°#°- ' + word + ' (' + value + ' P): ';
+            }
+
 
             var firstWinner = true;
             for (var k = 0; k < winWords[word].winners.length; ++k) {
@@ -506,7 +526,7 @@ var App = {};
             var newSettings = JSON.parse(param);
 
             for (var piece in newSettings) {
-                if (Settings.hasOwnProperty(piece)) {
+                if (SettingsBlueprint.hasOwnProperty(piece)) {
                     Settings[piece] = newSettings[piece];
                     sendPrivateMessage(user, 'Changed Settings.' + piece + ' to ' + Settings[piece]);
                 }
@@ -586,6 +606,13 @@ var App = {};
     App.onAppStart = function() {
         if (KnuddelsServer.getPersistence().hasObject(SETTINGS)) {
             Settings = KnuddelsServer.getPersistence().getObject(SETTINGS);
+        }
+
+        // ensure new settings are properly set!
+        for (var piece in SettingsBlueprint) {
+            if (!Settings.hasOwnProperty(piece)) {
+                Settings[piece] = SettingsBlueprint[piece];
+            }
         }
 
         Dictionary.load();
