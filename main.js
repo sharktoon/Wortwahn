@@ -33,12 +33,12 @@ var LetterValue = {
 };
 
 var ValueColorCodes = {
-    0: 'W',
+    0: 'M',
     1: 'C',
     2: 'O',
     3: 'R',
     4: 'G',
-    5: 'M'
+    5: 'W'
 };
 
 // userId: { letters: [], word: '', value: 0, step: NONE/OKAY/VOTE/ACCEPT/REJECT, win: true/false }
@@ -98,9 +98,9 @@ var Settings = {
     Timer: {
         score: 3000,
         signup: 5000,
-        submit: 30000,
+        submit: 45000,
         submitFinal: 5000,
-        vote: 5000
+        vote: 15000
     },
     Season: {
         id: '2015-03',
@@ -193,13 +193,13 @@ var App = {};
         var entry = params.trim().toUpperCase();
 
         if (entry.length == 0) {
-            sendPrivateMessage(user, 'Du musst ein Wort eingeben.°##°Du kannst diese Buchstaben verwenden:' + lettersToString(Round.letters));
+            sendPrivateMessage(user, 'Du musst ein Wort eingeben.°#°Du kannst diese Buchstaben verwenden:°#°' + lettersToString(Round.letters));
             return;
         }
 
         var value = getWordValue(Round.letters, entry);
         if (value < 0) {
-            sendPrivateMessage(user, 'Das Wort "' + entry + '" ist mit den Buchstaben leider nicht möglich!°##°Du kannst diese Buchstaben verwenden:' + lettersToString(Round.letters));
+            sendPrivateMessage(user, 'Das Wort "' + entry + '" ist mit den Buchstaben leider nicht möglich!°#°Du kannst diese Buchstaben verwenden:°#°' + lettersToString(Round.letters));
             return;
         }
 
@@ -312,7 +312,7 @@ var App = {};
         Round.letters = [];
         refillLetters(Round.letters);
 
-        sendPublicMessage('Die Buchstaben diese Runde:' + lettersToString(Round.letters) + '! Worte können mit ""/x WORT"" eingereicht werden');
+        sendPublicMessage('Die Buchstaben diese Runde:°#°' + lettersToString(Round.letters) + '°#°Worte können mit ""/x WORT"" eingereicht werden');
 
         function endSubmit() {
             if (Round.stage == 'submit') {
@@ -397,7 +397,7 @@ var App = {};
 
                         var index = 0;
                         for (; index < sortedWords.length; ++index) {
-                            if (winWords[sortedWords[index]] < entry.value) {
+                            if (winWords[sortedWords[index]].value < entry.value) {
                                 break;
                             }
                         }
@@ -411,16 +411,16 @@ var App = {};
             var word = sortedWords[i];
             var value = winWords[sortedWords[i]].value;
 
-            text += '°##°- ' + word + ' (' + value + ' P): ';
+            text += '°#°- ' + word + ' (' + value + ' P): ';
 
-            var firstWinner = false;
+            var firstWinner = true;
             for (var k = 0; k < winWords[word].winners.length; ++k) {
                 var user = KnuddelsServer.getUser(winWords[word].winners[k]);
                 Reward.awardPoints(user, value);
                 if (!firstWinner) {
                     text += ', ';
                 }
-                firstWinner = true;
+                firstWinner = false;
 
                 text += Reward.showUser(user);
             }
@@ -487,17 +487,17 @@ var App = {};
 
     function showRules(user) {
         var rulesText = 'Willkommen zum Spiel VERRÜCKTE WORTE!';
-        rulesText += '°##°Das Spiel ähnelt Scrabble - es geht darum Buchstaben zu legen. Jeder Buchstabe hat einen gewissen Wert.';
-        rulesText += '°##°Jeder Spieler bekommt die gleichen Buchstaben um damit ein Wort zu legen.';
-        rulesText += '°##°Folgende Befehle sind wichtig:';
-        rulesText += '°##°/x WORT - reicht ein Wort ein, falls du die richtigen Buchstaben dafür hast!';
-        rulesText += '°##°    Eine private Nachricht an die App geht dafür auch.';
-        rulesText += '°##°°>/regeln|/regeln<° - zeigt diese Hilfe an.';
-        rulesText += '°##°°>/punkte|/punkte<° - zeigt die Rangliste für die Saison an';
-        rulesText += '°##°°>/altepunkte|/altepunkte<° - zeigt die Rangliste für die vergangene Saison an';
-        rulesText += '°##°°>/hutladen|/hutladen<° - betrete den Hutladen, dort gibt es Symbole für Punkte';
-        rulesText += '°##°Und am Wichtigsten:';
-        rulesText += '°##°Viel Spaß!';
+        rulesText += '°#°Das Spiel ähnelt Scrabble - es geht darum Buchstaben zu legen. Jeder Buchstabe hat einen gewissen Wert.';
+        rulesText += '°#°Jeder Spieler bekommt die gleichen Buchstaben um damit ein Wort zu legen.';
+        rulesText += '°#°Folgende Befehle sind wichtig:';
+        rulesText += '°#°/x WORT - reicht ein Wort ein, falls du die richtigen Buchstaben dafür hast!';
+        rulesText += '°#°    Eine private Nachricht an die App geht dafür auch.';
+        rulesText += '°#°°>/regeln|/regeln<° - zeigt diese Hilfe an.';
+        rulesText += '°#°°>/punkte|/punkte<° - zeigt die Rangliste für die Saison an';
+        rulesText += '°#°°>/altepunkte|/altepunkte<° - zeigt die Rangliste für die vergangene Saison an';
+        rulesText += '°#°°>/hutladen|/hutladen<° - betrete den Hutladen, dort gibt es Symbole für Punkte';
+        rulesText += '°#°Und am Wichtigsten:';
+        rulesText += '°#°Viel Spaß!';
         sendPrivateMessage(user, rulesText);
     }
 
@@ -563,7 +563,7 @@ var App = {};
     App.onUserJoined = function(user) {
         sendPrivateMessage(user, 'Willkommen! Einige Befehle werden erklärt, wenn du °>/regeln|/regeln<° eingibst.');
         if (Round.stage == 'submit') {
-            sendPrivateMessage(user, 'Folgende Buchstaben sind gerade verfügbar: ' + lettersToString(Round.letters) + '!°##°Mit /x WORT kannst du noch schnell ein Wort einreichen. Alternativ auch als /p an mich!');
+            sendPrivateMessage(user, 'Folgende Buchstaben sind gerade verfügbar: ' + lettersToString(Round.letters) + '!°#°Mit /x WORT kannst du noch schnell ein Wort einreichen. Alternativ auch als /p an mich!');
         }
 
         var OWNED_HATS = '_HATS_OWNED_';

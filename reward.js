@@ -12,7 +12,7 @@ var Reward = {};
     var CREDITS = '_CREDITS_';
     var WORN_HAT = '_HAT_WORN_';
     var OWNED_HATS = '_HATS_OWNED_';
-    var BR = '°##°';
+    var BR = '°#°';
 
     // convenience function, will show the picture of the user in front of the name
     function showUser(user) {
