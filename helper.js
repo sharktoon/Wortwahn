@@ -6,11 +6,11 @@
 
 /** convenience function - so I only see warning once */
 function sendPublicMessage(text) {
-    KnuddelsServer.getDefaultBotUser().sendPublicMessage(text);
+    KnuddelsServer.getDefaultBotUser().sendPublicMessage(Settings.DefaultBotColor + text);
 }
 
 /** convenience - reduces number of warnings in the file */
 function sendPrivateMessage(user, message) {
-    user.sendPrivateMessage(message);
+    user.sendPrivateMessage(Settings.DefaultBotColor + message);
 }
 

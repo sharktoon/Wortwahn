@@ -113,7 +113,9 @@ var Settings = {
     LastSeason: {
         id: '2015-02',
         name: 'Februar'
-    }
+    },
+
+    DefaultBotColor: '°GG°'
 };
 
 var SettingsBlueprint = Settings;
@@ -152,7 +154,7 @@ var App = {};
             //result = result + letters[i] + '(' + LetterValue[letters[i]] + ') ';
             result = result + '°r' + colorCode + '°_' + letters[i] + '_°r10°' + LetterValue[letters[i]] + '  ';
         }
-        result += '°r°';
+        result += '°r°' + Settings.DefaultBotColor;
         return result;
     }
 
