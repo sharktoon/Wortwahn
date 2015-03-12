@@ -28,6 +28,21 @@ var Reward = {};
         return icon + nick;
     }
 
+    /** shows a big number with . each 1000 */
+    function formatBigNumber(number) {
+        try {
+            var text = '' + Math.floor(number) % 1000;
+            number = Math.floor(number / 1000);
+            while (number > 0) {
+                text = number % 1000 + '.' + text;
+                number = Math.floor(number / 1000);
+            }
+            return text;
+        } catch(err) {
+        }
+        return number;
+    }
+
     function showScoreEntries(entries) {
         var output = '';
         var lastRank = -1;
@@ -45,7 +60,7 @@ var Reward = {};
             }
             var points = entry.getValue();
 
-            output += BR + rank + ' ' + showUser(entry.getUser()) + '     ' + points;
+            output += BR + rank + ' ' + showUser(entry.getUser()) + '     ' + formatBigNumber(points);
         }
         return output;
     }
@@ -58,7 +73,7 @@ var Reward = {};
     function showScoresForSeason(user, season) {
         var params = {
             ascending: false,
-            count: 10
+            count: 25
         };
         var sortedEntries = UserPersistenceNumbers.getSortedEntries(season.id, params);
 
@@ -68,6 +83,8 @@ var Reward = {};
         var playerPos = UserPersistenceNumbers.getPosition(season.id, user, params);
 
         if (playerPos >= params.count) {
+            output += BR;
+            params.count = 10;
             var entriesNearPlayer = UserPersistenceNumbers.getSortedEntriesAdjacent(season.id, user, params);
             output += showScoreEntries(entriesNearPlayer);
         }
@@ -98,7 +115,7 @@ var Reward = {};
     function showHatShopOverview(user) {
         var message = "Willkommen im Hutladen!" + BR;
         message += "Hier kannst du deine gewonnenen Punkte in Belohnungen eintauschen!";
-        message += BR + "Du hast " + user.getPersistence().getNumber(CREDITS, 0) + " P";
+        message += BR + "Du hast " + formatBigNumber(user.getPersistence().getNumber(CREDITS, 0)) + " P";
 
         for (var cat in HatCategories) {
             if (HatCategories.hasOwnProperty(cat)) {
@@ -114,7 +131,7 @@ var Reward = {};
     function showHatShopCategory(user, category) {
         var cat = HatCategories[category];
         var message = "Hutladen - Kategorie " + cat.name;
-        message += BR + "Du hast " + user.getPersistence().getNumber(CREDITS, 0) + " P";
+        message += BR + "Du hast " + formatBigNumber(user.getPersistence().getNumber(CREDITS, 0)) + " P";
 
         var ownedList = [];
         if (user.getPersistence().hasObject(OWNED_HATS)) {
@@ -128,7 +145,7 @@ var Reward = {};
                 if (ownedList.indexOf(hat.id) != -1) {
                     extra = " (gehört dir)";
                 } else if (hat.price > 0) {
-                    extra = " (" + hat.price + " P)";
+                    extra = " (" + formatBigNumber(hat.price) + " P)";
                 }
                 message += BR + "- °>" + KnuddelsServer.getFullSystemImagePath(hat.image) + "<° °>>>auswählen|/hatshop " + hat.id + "<°";
                 message += extra;
@@ -147,12 +164,12 @@ var Reward = {};
         if (owned) {
             message += BR + "°>>>verwenden|/equiphat " + hat.id + "<°";
             message += BR + "Du besitzt diesen Hut bereits.";
-            if (hat.price > 0) message += " (Preis: " + hat.price + ")";
+            if (hat.price > 0) message += " (Preis: " + formatBigNumber(hat.price) + ")";
         } else if (hat.price > 0) {
             message += BR + "°>>>kaufen|/buyhat " + hat.id + "<°";
-            message += BR + "Preis: " + hat.price + " P (Du hast: " + user.getPersistence().getNumber(CREDITS, 0) + ")";
+            message += BR + "Preis: " + hat.price + " P (Du hast: " + formatBigNumber(user.getPersistence().getNumber(CREDITS, 0)) + ")";
         } else {
-            message += BR + "Diesen Hut gibt es nur als besondere Belohnung!";
+            message += BR + "Diesen Hut gibt es nur für besondere Leistungen!";
         }
         message += BR + "°>zurück|/hatshop " + hat.category + "<°";
         sendPrivateMessage(user, message);

@@ -8,7 +8,7 @@
 var Hats = {};
 
 var HatCategories = {
-    "_SPECIAL_": { type: 'achievement', name: "Besonders", hats: [] },
+    "_SPECIAL_": { type: 'achievement', name: "(Belohnungen)", hats: [] },
     "Abstrakt": { type: 'normal', name: "Abstrakt", hats: [] },
     "Beschäftigung": { type: 'normal', name: "Beschäftigung", hats: [] },
     "Chips": { type: 'normal', name: "Chips", hats: [] },
