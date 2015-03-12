@@ -173,7 +173,7 @@ var Reward = {};
             if (hat.price > 0) message += " (Preis: " + formatBigNumber(hat.price) + ")";
         } else if (hat.price > 0) {
             message += BR + "°>>>kaufen|/buyhat " + hat.id + "<°";
-            message += BR + "Preis: " + hat.price + " P (Du hast: " + formatBigNumber(user.getPersistence().getNumber(CREDITS, 0)) + ")";
+            message += BR + "Preis: " + formatBigNumber(hat.price) + " P (Du hast: " + formatBigNumber(user.getPersistence().getNumber(CREDITS, 0)) + ")";
         } else {
             message += BR + "Diesen Hut gibt es nur für besondere Leistungen!";
         }
