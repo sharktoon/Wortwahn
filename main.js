@@ -425,7 +425,7 @@ var App = {};
             var word = sortedWords[i];
             var value = winWords[sortedWords[i]].value;
 
-            if (entry.value === Round.target && extraPoints) {
+            if (value === Round.target && extraPoints) {
                 text += '°#°- _' + word + '_ (' + value + ' + ' + extraPoints + ' P): ';
                 value += extraPoints;
             } else {
