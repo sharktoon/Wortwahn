@@ -34,6 +34,12 @@ var Reward = {};
             var text = '' + Math.floor(number) % 1000;
             number = Math.floor(number / 1000);
             while (number > 0) {
+                var missingNumbers = text.length % 4;
+                if (missingNumbers == 1) {
+                    text = '00' + text;
+                } else if (missingNumbers == 2) {
+                    text = '0' + text;
+                }
                 text = number % 1000 + '.' + text;
                 number = Math.floor(number / 1000);
             }
