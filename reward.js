@@ -207,14 +207,11 @@ var Reward = {};
         sendPublicMessage(pubText);
     }
 
-    function awardHat(user, hatId) {
+    function awardHat(user, hatId, specialText) {
         var hat = Hats[hatId];
         if (hat === undefined) return;
 
-        var ownedList = [];
-        if (user.getPersistence().hasObject(OWNED_HATS)) {
-            ownedList = user.getPersistence().getObject(OWNED_HATS);
-        }
+        var ownedList = getOwnedHats(user);
         if (ownedList.indexOf(hatId) != -1) {
             return;
         }
@@ -222,10 +219,22 @@ var Reward = {};
         ownedList.push(hatId);
         user.getPersistence().setObject(OWNED_HATS, ownedList);
 
-        var message = "Der Hut °>" + KnuddelsServer.getFullSystemImagePath(hat.image) + "<° gehört nun dir!";
-        message += BR + "°>>>verwenden|/equiphat " + hat.id + "<°";
+        var message = "";
+        if (specialText) {
+            message = specialText + BR;
+        }
+        message += "Der Hut °>" + KnuddelsServer.getFullSystemImagePath(hat.image) + "<° gehört nun dir!";
+        message += " Du kannst ihn direkt _°>>>verwenden|/equiphat " + hat.id + "<°_";
 
         sendPrivateMessage(user, message);
+    }
+
+    function getOwnedHats(user) {
+        var ownedList = [];
+        if (user.getPersistence().hasObject(OWNED_HATS)) {
+            ownedList = user.getPersistence().getObject(OWNED_HATS);
+        }
+        return ownedList;
     }
 
     function buyHat(user, param) {
@@ -251,6 +260,8 @@ var Reward = {};
     }
 
     Reward = {
+        getOwnedHats: getOwnedHats,
+
         showShop: showHatShop,
         equipHat: equipHat,
         buyHat: buyHat,

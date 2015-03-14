@@ -583,24 +583,18 @@ var App = {};
     };
 
     App.onUserJoined = function(user) {
-        sendPrivateMessage(user, 'Willkommen! Einige Befehle werden erklärt, wenn du °>/regeln|/regeln<° eingibst.');
+        var text = 'Willkommen! Einige Befehle werden erklärt, wenn du °>/regeln|/regeln<° eingibst.';
         if (Round.stage == 'submit') {
-            sendPrivateMessage(user, 'Folgende Buchstaben sind gerade verfügbar: ' + lettersToString(Round.letters) + '!°#°Mit /x WORT kannst du noch schnell ein Wort einreichen. Alternativ auch als /p an mich!');
+            text += '°##°Folgende Buchstaben sind gerade verfügbar:°#°' + lettersToString(Round.letters) + '°#°Mit /x WORT kannst du noch schnell ein Wort einreichen. Alternativ auch als /p an mich!';
         }
 
-        var OWNED_HATS = '_HATS_OWNED_';
+        sendPrivateMessage(user, text);
 
         var AWARD_M = 'NPM', AWARD_F = 'NPF';
-        var ownedList = [];
-        if (user.getPersistence().hasObject(OWNED_HATS)) {
-            ownedList = user.getPersistence().getObject(OWNED_HATS);
-        }
-        if (ownedList.indexOf(AWARD_M) === -1 && ownedList.indexOf[AWARD_F] === -1) {
-            if (user.getGender() == Gender.Female) {
-                Reward.awardHat(user, AWARD_F);
-            } else {
-                Reward.awardHat(user, AWARD_M);
-            }
+        if (user.getGender() == Gender.Female) {
+            Reward.awardHat(user, AWARD_F, 'Als kleines Begrüßungsgeschenk bekommst du direkt deinen ersten Hut!');
+        } else {
+            Reward.awardHat(user, AWARD_M, 'Als kleines Begrüßungsgeschenk bekommst du direkt deinen ersten Hut!');
         }
     };
 
