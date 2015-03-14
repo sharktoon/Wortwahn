@@ -77,21 +77,27 @@ var Reward = {};
     }
 
     function showScoresForSeason(user, season) {
+        var baseLen = 25, extraLen = 10;
         var params = {
             ascending: false,
-            count: 25
+            count: baseLen
         };
+        var playerPos = UserPersistenceNumbers.getPosition(season.id, user, params);
+
+        if (baseLen <= playerPos && playerPos < baseLen + extraLen) {
+            params.count = baseLen + extraLen;
+        }
+
         var sortedEntries = UserPersistenceNumbers.getSortedEntries(season.id, params);
 
         var output = 'Punkte in Saison ' + season.name;
         output += showScoreEntries(sortedEntries);
 
-        var playerPos = UserPersistenceNumbers.getPosition(season.id, user, params);
 
         if (playerPos >= params.count) {
             output += BR;
-            params.count = 10;
-            var entriesNearPlayer = UserPersistenceNumbers.getSortedEntriesAdjacent(season.id, user, params);
+            params.count = extraLen;
+            var entriesNearPlayer = UserPersistenceNumbers.getSortedEntriesAdjacent(season.id, user.getUserId(), params);
             output += showScoreEntries(entriesNearPlayer);
         }
 
