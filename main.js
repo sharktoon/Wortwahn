@@ -196,6 +196,11 @@ var App = {};
             startPlayer(userId);
         }
 
+        if (!Round.players.hasOwnProperty(userId)) {
+            sendPrivateMessage(user, 'Sorry! Um mitzuspielen musst du im Channel sein!');
+            return;
+        }
+
         var obj = Round.players[userId];
 
         var entry = params.trim().toUpperCase();
@@ -226,6 +231,11 @@ var App = {};
             }
         }
 
+        var extra = '';
+        if (value == Round.target) {
+            extra = ' Damit wirst du Bonuspunkte für die Punktzahl bekommen!';
+        }
+
         if (acceptance === 'vote') {
             obj.value = value;
             obj.word = entry;
@@ -236,13 +246,13 @@ var App = {};
             } else {
                 Voting[entry] = { accept: [], reject: [], submit: [userId] };
             }
-            sendPrivateMessage(user, 'Dein Wort "' + entry + '" hat den Wert ' + value + ' - falls es von den anderen als gültig akzeptiert wird!');
+            sendPrivateMessage(user, 'Dein Wort "' + entry + '" hat den Wert ' + value + ' - falls es von den anderen als gültig akzeptiert wird!' + extra);
         } else if (acceptance === 'accept') {
             obj.value = value;
             obj.word = entry;
 
             obj.step = 'okay';
-            sendPrivateMessage(user, 'Dein Wort "' + entry + '" hat den Wert ' + value + '.');
+            sendPrivateMessage(user, 'Dein Wort "' + entry + '" hat den Wert ' + value + '.' + extra);
         }
     }
 
