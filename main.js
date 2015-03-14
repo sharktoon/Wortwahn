@@ -375,13 +375,17 @@ var App = {};
 
         var text = 'Die Beiträge diese Runde:';
 
+        var allowedFreePass = Settings.LetterCount - 2 - RandomOperations.nextInt(4);
+
         for (var word in Voting) {
-            if (Voting.hasOwnProperty(word) && Voting[word].accept.length > Voting[word].reject.length) {
-                Dictionary.userAccept(word);
+            if (Voting.hasOwnProperty(word)) {
+                if(Voting[word].accept.length > Voting[word].reject.length) {
+                    Dictionary.userAccept(word, 1);
+                } else if(word.length <= allowedFreePass && Voting[word].accept.length + Voting[word].submit.length > Voting[word].reject.length) {
+                    Dictionary.userAccept(word, 1);
+                }
             }
         }
-
-        var allowedFreePass = Settings.LetterCount - 2 - RandomOperations.nextInt(4);
 
         var totalWinners = 0;
         for (var userId in Round.players) {

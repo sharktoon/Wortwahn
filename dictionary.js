@@ -93,7 +93,7 @@ var Dictionary = {};
         if (WordBase.hasOwnProperty(word)) {
             if (WordBase[word].okay) {
                 result = 'accept';
-            } else if (WordBase[word].votes && WordBase[word].votes > Settings.ValueToAccept) {
+            } else if (WordBase[word].hasOwnProperty('votes') && WordBase[word].votes > Settings.ValueToAccept) {
                 result = 'accept';
             }
         }
@@ -101,28 +101,53 @@ var Dictionary = {};
         return result;
     }
 
-    function userAccept(word) {
+    function userAccept(word, votes) {
         word = word.toUpperCase();
 
         if (WordBase.hasOwnProperty(word)) {
             if (WordBase[word].votes) {
-                WordBase[word].votes += 1;
+                WordBase[word].votes += votes;
             } else {
-                WordBase[word].votes = 1;
+                WordBase[word].votes = votes;
             }
+        } else {
+            WordBase[word] = { votes: votes };
         }
     }
 
+    var lastTeachWord = '';
+
     function showUserAccept(user) {
+        var OUTPUT_LENGTH = 5;
         if (user.isChannelModerator() || user.isChannelOwner()) {
             var wordList = [];
+            var started = lastTeachWord == '';
 
             for (var word in WordBase) {
-                if (WordBase.hasOwnProperty(word) && WordBase[word].votes) {
-                    wordList.push(word);
+                if (WordBase.hasOwnProperty(word)) {
+                    if (started) {
+                        if (WordBase[word].hasOwnProperty('votes')) {
+                            wordList.push(word);
+                            if (wordList.length >= OUTPUT_LENGTH) {
+                                lastTeachWord = word;
+                                break;
+                            }
+                        }
+                    } else if (word == lastTeachWord) {
+                        started = true;
+                    }
                 }
             }
-            sendPrivateMessage(user, JSON.stringify(wordList));
+            if (wordList.length < OUTPUT_LENGTH) {
+                lastTeachWord = '';
+            }
+
+            var message = 'Gesehene Worte:';
+            for (var i = 0; i < wordList.length; ++i) {
+                message += '°##° '+wordList[i]+': { votes: ' + WordBase[wordList[i]].votes + '} °>/teach|/teach '+wordList[i]+'<°';
+            }
+            sendPrivateMessage(user, message);
+
         }
     }
 
@@ -131,6 +156,11 @@ var Dictionary = {};
             word = word.trim().toUpperCase();
             if (word.length > Settings.LetterCount) {
                 sendPrivateMessage(user, 'Das Wort "' + word + '" ist nicht möglich. Zu lang.');
+                return;
+            }
+
+            if (word == '') {
+                showUserAccept(user);
                 return;
             }
 
