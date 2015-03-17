@@ -99,6 +99,10 @@ var Settings = {
         Points: 15,
         MinPlayers: 3
     },
+    BonusSolo: {
+        Points: 3,
+        MinPlayers: 4
+    },
     Timer: {
         score: 3000,
         signup: 5000,
@@ -411,7 +415,7 @@ var App = {};
             }
         }
 
-        var allowedFreePass = Settings.LetterCount - 2 - RandomOperations.nextInt(4);
+        var allowedFreePass = Settings.LetterCount - 2 - RandomOperations.nextInt(3);
 
         var totalWinners = 0;
         for (var userId in Round.players) {
@@ -453,16 +457,28 @@ var App = {};
         if (totalWinners < Settings.BonusTarget.MinPlayers) {
             extraPoints = 1;
         }
+        var soloPoints = Settings.BonusSolo.Points;
+        if (totalWinners < Settings.BonusSolo.MinPlayers) {
+            soloPoints = 0;
+        }
+
         for (var i = 0; i < sortedWords.length; ++i) {
             var word = sortedWords[i];
             var value = winWords[sortedWords[i]].value;
 
+            var pointsText = '(' + value;
+
             if (value === Round.target && extraPoints) {
-                text += '°#°- _' + word + '_ (' + value + ' + ' + extraPoints + ' P): ';
+                pointsText += ' + ' + extraPoints;
                 value += extraPoints;
-            } else {
-                text += '°#°- ' + word + ' (' + value + ' P): ';
             }
+            if (soloPoints && winWords[word].winners.length == 1) {
+                pointsText += ' + ' + soloPoints;
+                value += soloPoints;
+            }
+            pointsText += ' P)';
+            text += '°#°- _' + word + '_ ' + pointsText + ': ';
+
 
 
             var firstWinner = true;
