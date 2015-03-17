@@ -4,41 +4,41 @@ require('dictionary.js');
 
 // LETTER: value
 var LetterValue = {
-    A: 4,
+    A: 3,
     B: 3,
-    C: 0,
+    C: 3,
     D: 2,
-    E: 3,
-    F: 2,
+    E: 2,
+    F: 3,
     G: 1,
     H: 2,
-    I: 0,
-    J: 0,
-    K: 2,
+    I: 1,
+    J: 5,
+    K: 3,
     L: 1,
     M: 3,
     N: 2,
-    O: 0,
-    P: 2,
-    Q: 1,
+    O: 1,
+    P: 3,
+    Q: 7,
     R: 3,
-    S: 0,
+    S: 1,
     T: 1,
-    U: 0,
-    V: 1,
+    U: 1,
+    V: 5,
     W: 3,
-    X: 1,
-    Y: 1,
-    Z: 2
+    X: 7,
+    Y: 7,
+    Z: 3
 };
 
 var ValueColorCodes = {
-    0: 'M',
+    0: 'W',
     1: 'C',
     2: 'O',
-    3: 'R',
-    4: 'G',
-    5: 'W'
+    3: '[255,80,40]',
+    5: 'G',
+    7: 'M'
 };
 
 // userId: { letters: [], word: '', value: 0, step: NONE/OKAY/VOTE/ACCEPT/REJECT, win: true/false }
@@ -143,6 +143,26 @@ var App = {};
             }
 
             letters.push(LetterPool.pop());
+        }
+
+        // C always appears with H or K
+        if (letters.indexOf('C') != -1) {
+            if (letters.indexOf('K') == -1 && letters.indexOf('H') == -1) {
+                var pos = RandomOperations.nextInt(letters.length);
+                var replacement = 'H';
+                if (RandomOperations.nextInt(3) == 0) {
+                    replacement = 'K';
+                }
+                letters.splice(pos, 1, replacement);
+            }
+        }
+
+        // Q only ever appears with U
+        if (letters.indexOf('Q') != -1) {
+            if (letters.indexOf('U') == -1) {
+                var pos = RandomOperations.nextInt(letters.length);
+                letters.splice(pos, 1, 'U');
+            }
         }
     }
 
