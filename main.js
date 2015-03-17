@@ -349,7 +349,7 @@ var App = {};
 
     /** starts submit phase - every player gets letters assigned */
     function beginSubmit() {
-        Round.target = RandomOperations.nextInt(10) + RandomOperations.nextInt(10);
+        Round.target = 2 + RandomOperations.nextInt(10) + RandomOperations.nextInt(10);
         Round.stage = 'submit';
         Round.letters = [];
         refillLetters(Round.letters);
