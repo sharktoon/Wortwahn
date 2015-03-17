@@ -464,11 +464,12 @@ var App = {};
 
         for (var i = 0; i < sortedWords.length; ++i) {
             var word = sortedWords[i];
+            var outputWord = word;
             var value = winWords[sortedWords[i]].value;
 
             var pointsText = '(' + value;
-
             if (value === Round.target && extraPoints) {
+                outputWord = '_' + word + '_';
                 pointsText += ' + ' + extraPoints;
                 value += extraPoints;
             }
@@ -477,7 +478,7 @@ var App = {};
                 value += soloPoints;
             }
             pointsText += ' P)';
-            text += '°#°- _' + word + '_ ' + pointsText + ': ';
+            text += '°#°- ' + outputWord + ' ' + pointsText + ': ';
 
 
 
