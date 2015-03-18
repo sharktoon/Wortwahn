@@ -110,6 +110,17 @@ var Settings = {
         submitFinal: 5000,
         vote: 15000
     },
+    ExtraRound: {
+        Duration: 5,
+        Reward: {
+            1: 100,
+            2: 50,
+            3: 25,
+            all: 10
+        },
+        MinPlayers: 4,
+        Pause: 20
+    },
     Season: {
         id: '2015-03',
         name: 'März'
@@ -128,6 +139,13 @@ var App = {};
 
 
 (function() {
+    var ExtraInstance = {
+        Active: false,
+        RoundsToStart: 5,
+        // players: userId -> { Points, Words }
+        Players: {},
+        Turns: 0
+    };
     var LetterPool = [];
 
     /** fills the letters with available letters from the pool */
@@ -490,7 +508,8 @@ var App = {};
 
             var firstWinner = true;
             for (var k = 0; k < winWords[word].winners.length; ++k) {
-                var user = KnuddelsServer.getUser(winWords[word].winners[k]);
+                var userId = winWords[word].winners[k];
+                var user = KnuddelsServer.getUser(userId);
                 Reward.awardPoints(user, value);
                 if (!firstWinner) {
                     text += ', ';
@@ -498,9 +517,27 @@ var App = {};
                 firstWinner = false;
 
                 text += Reward.showUser(user);
+
+                if (ExtraInstance.Active) {
+                    if (ExtraInstance.Players.hasOwnProperty(userId)) {
+                        ExtraInstance.Players[userId].Points += value;
+                        ExtraInstance.Players[userId].Words += 1;
+                    } else {
+                        ExtraInstance.Players[userId] = {
+                            Points: value,
+                            Words: 1
+                        }
+                    }
+                }
             }
 
             text += endPiece;
+        }
+
+        if (ExtraInstance.Active) {
+            ++ExtraInstance.Turns;
+        } else if (totalWinners >= Settings.ExtraRound.MinPlayers) {
+            ++ExtraInstance.RoundsToStart;
         }
 
         if (totalWinners > 0) {
@@ -526,7 +563,81 @@ var App = {};
 
         Voting = {};
 
-        sendPublicMessage('Runde vorbei! Nächste Runde startet gleich! Ihr könnt jederzeit den °>Hutladen|/Hutladen<° besuchen!');
+        if (ExtraInstance.Active) {
+            var text = 'Runde vorbei! Nächste Runde startet gleich!';
+
+            var sortedPlayers = [];
+            for (var userId in ExtraInstance.Players) {
+                if (ExtraInstance.Players.hasOwnProperty(userId)) {
+                    var player = ExtraInstance.Players[userId];
+
+                    var index = 0;
+                    for (; index < sortedPlayers.length; ++index) {
+                        if (ExtraInstance.Players[sortedPlayers[index]].Points < player.Points) {
+                            break;
+                        }
+                    }
+                    sortedPlayers.splice(index, 0, userId);
+                }
+            }
+
+            var remainingRounds = Settings.ExtraRound.Duration - ExtraInstance.Turns;
+            if (remainingRounds > 0) {
+                text += ' Gerade läuft eine _Extra Runde_!';
+
+                text += '°#°Punktestand';
+                var rank = 0;
+                var lastPoints = 10000000000;
+                for (var i = 0; i < sortedPlayers.length; ++i) {
+                    userId = sortedPlayers[i];
+                    var user = KnuddelsServer.getUser(userId);
+                    var player = ExtraInstance.Players[userId];
+                    if (player.Points != lastPoints) {
+                        rank = i + 1;
+                        lastPoints = player.Points;
+                    }
+                    text += '°#° ' + rank + '. ' + Reward.showUser(user) + '     ' + player.Points;
+                }
+            } else {
+                ExtraInstance.Active = false;
+                ExtraInstance.RoundsToStart = 0;
+
+                text += '°##°_Extra Runde Rangliste_';
+                var rank = 0;
+                var lastPoints = 10000000000;
+                for (var i = 0; i < sortedPlayers.length; ++i) {
+                    userId = sortedPlayers[i];
+                    var user = KnuddelsServer.getUser(userId);
+                    var player = ExtraInstance.Players[userId];
+                    if (player.Points != lastPoints) {
+                        rank = i + 1;
+                        lastPoints = player.Points;
+                    }
+
+                    var bonusPoints = Settings.ExtraRound.Reward.all;
+                    if (Settings.ExtraRound.Reward.hasOwnProperty('' + rank)) {
+                        bonusPoints = Settings.ExtraRound.Reward['' + rank];
+                    }
+
+                    text += '°#° ' + rank + '. ' + Reward.showUser(user) + '     ' + player.Points + ' => +' + bonusPoints + ' P';
+                    Reward.awardPoints(user, bonusPoints);
+
+                    if (rank <= 3) {
+                        Reward.awardHat(user, '&03', 'Für deine Platzierung in der Extra Runde hast du diesen Hut gewonnen!');
+                    }
+                }
+                text += '°##°Glückwunsch an alle Gewinner!';
+            }
+
+            sendPublicMessage(text);
+        } else if (ExtraInstance.RoundsToStart >= Settings.ExtraRound.Pause) {
+            ExtraInstance.Active = true;
+            ExtraInstance.Turns = 0;
+            ExtraInstance.Players = {};
+            sendPublicMessage('Runde vorbei!°##°Es startet eine _Extra Runde_!°#°Die nächsten ' + Settings.ExtraRound.Duration + ' werden zusammengezählt! Wer am meisten Punkte sammelt bekommt einen Bonus!°#°Ran an die Tasten!');
+        } else {
+            sendPublicMessage('Runde vorbei! Nächste Runde startet gleich! Ihr könnt jederzeit den °>Hutladen|/Hutladen<° besuchen!');
+        }
 
         setTimeout(function() {
             if (Round.stage == 'none') {
@@ -590,6 +701,12 @@ var App = {};
             }
         }
     }
+    function startExtraRound(user) {
+        if (user.isChannelModerator() || user.isChannelOwner()) {
+            sendPrivateMessage(user, 'Wettkampf startet gleich!');
+            ExtraInstance.RoundsToStart = Settings.ExtraRound.Pause;
+        }
+    }
 
     App.chatCommands = {
         settings: changeSettings,
@@ -627,6 +744,8 @@ var App = {};
         hatshop: Reward.showShop,
         buyhat: Reward.buyHat,
         equiphat: Reward.equipHat,
+
+        wettkampf: startExtraRound,
 
         teach: Dictionary.teach,
         forget: Dictionary.forget,
