@@ -151,6 +151,8 @@ var Dictionary = {};
         }
     }
 
+    var teachTimeout;
+
     function teach(user, word) {
         if (user.isChannelModerator() || user.isChannelOwner()) {
             word = word.trim().toUpperCase();
@@ -168,6 +170,13 @@ var Dictionary = {};
             sendPrivateMessage(user, 'Das Wort "' + word + '" ist jetzt in der Liste der bekannten Worte.');
 
             Reward.awardHat(user, "MOD");
+
+            if (teachTimeout) {
+                clearTimeout(teachTimeout);
+            }
+            teachTimeout = setTimeout(function() {
+                Dictionary.store();
+            }, 60000);
         } else {
             sendPrivateMessage(user, 'Das klappt so nicht.');
         }
