@@ -470,6 +470,7 @@ var App = {};
         for (var i = 0; i < sortedWords.length; ++i) {
             var word = sortedWords[i];
             var outputWord = word;
+            var endPiece = '';
             var value = winWords[sortedWords[i]].value;
 
             var pointsText = '(' + value;
@@ -479,7 +480,7 @@ var App = {};
                 value += extraPoints;
             }
             if (soloPoints && winWords[word].winners.length == 1) {
-                pointsText += ' + ' + soloPoints;
+                endPiece = ' (Solo: +' + soloPoints + ' P)';
                 value += soloPoints;
             }
             pointsText += ' P)';
@@ -498,6 +499,8 @@ var App = {};
 
                 text += Reward.showUser(user);
             }
+
+            text += endPiece;
         }
 
         if (totalWinners > 0) {
