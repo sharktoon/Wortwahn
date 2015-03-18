@@ -146,6 +146,7 @@ var Dictionary = {};
             for (var i = 0; i < wordList.length; ++i) {
                 message += '°##° '+wordList[i]+': { votes: ' + WordBase[wordList[i]].votes + '} °>/teach|/teach '+wordList[i]+'<°';
             }
+            message += '°##°weiter mit °>>>/teach|/teach<°';
             sendPrivateMessage(user, message);
 
         }
