@@ -47,6 +47,7 @@ var Round = {
     stage: 'none',
     target: 0,
     letters: [],
+    vowels: [],
     players: {}
 };
 
@@ -66,34 +67,42 @@ var Voting = {};
 /** various settings for the game */
 var Settings = {
     LetterPool: {
-        A: 7, //6.5,
+        A: 2, //6.5,
         B: 2, //1.9,
         C: 3, //3.1,
         D: 5, //5.1,
-        E: 17, //17.4,
+        E: 8, //17.4,
         F: 2, //1.7,
         G: 3, //3.0,
         H: 4, //4.8,
-        I: 8,//7.6,
+        I: 2,//7.6,
         J: 1,//0.3,
         K: 1,//1.2,
         L: 3,//3.4,
         M: 2,//2.5,
         N: 10,//9.8,
-        O: 3,//2.5,
+        O: 1,//2.5,
         P: 1,//0.8,
         Q: 1,//0.1,
         R: 7,//7.0,
         S: 8,//7.9,
         T: 6,//6.2,
-        U: 5,//4.4,
+        U: 1,//4.4,
         V: 1,//0.7,
         W: 1,//1.9,
         X: 1,//0.1,
         Y: 1,//0.1,
         Z: 1//1.1
     },
+    VowelPool: {
+        A: 6, //6.5,
+        E: 10, //17.4,
+        I: 7,//7.6,
+        O: 4,//2.5,
+        U: 6//4.4,
+    },
     LetterCount: 12,
+    VowelCount: 2,
     ValueToAccept: 10,
     BonusTarget: {
         Points: 15,
@@ -147,6 +156,7 @@ var App = {};
         Turns: 0
     };
     var LetterPool = [];
+    var VowelPool = [];
 
     /** fills the letters with available letters from the pool */
     function refillLetters(letters) {
@@ -177,6 +187,22 @@ var App = {};
                 }
                 letters.splice(pos, 1, replacement);
             }
+        }
+
+        for (var i = 0; i < Settings.VowelCount; ++i) {
+            if (VowelPool.length <=  1) {
+                for (var x in Settings.VowelPool) {
+                    if (Settings.VowelPool.hasOwnProperty(x)) {
+                        for (var k = 0; k < Settings.VowelPool[x]; ++k) {
+                            VowelPool.push(x);
+                        }
+                    }
+                }
+                VowelPool = RandomOperations.shuffleObjects(VowelPool);
+            }
+
+            var pos = RandomOperations.nextInt(letters.length);
+            letters.splice(pos, 0, VowelPool.pop());
         }
 
         // Q only ever appears with U
@@ -585,7 +611,7 @@ var App = {};
             if (remainingRounds > 0) {
                 text += ' Gerade läuft eine _Extra Runde_!';
 
-                text += '°#°Punktestand';
+                text += '°#°Zwischenstand Runde ' + ExtraInstance.Turns + ' von ' + Settings.ExtraRound.Duration;
                 var rank = 0;
                 var lastPoints = 10000000000;
                 for (var i = 0; i < sortedPlayers.length; ++i) {
@@ -634,7 +660,7 @@ var App = {};
             ExtraInstance.Active = true;
             ExtraInstance.Turns = 0;
             ExtraInstance.Players = {};
-            sendPublicMessage('Runde vorbei!°##°Es startet eine _Extra Runde_!°#°Die nächsten ' + Settings.ExtraRound.Duration + ' werden zusammengezählt! Wer am meisten Punkte sammelt bekommt einen Bonus!°#°Ran an die Tasten!');
+            sendPublicMessage('Runde vorbei!°##°Es startet eine _Extra Runde_!°#°Die nächsten ' + Settings.ExtraRound.Duration + ' Runden werden zusammengezählt! Wer am meisten Punkte sammelt bekommt einen Bonus!°#°Ran an die Tasten!');
         } else {
             sendPublicMessage('Runde vorbei! Nächste Runde startet gleich! Ihr könnt jederzeit den °>Hutladen|/Hutladen<° besuchen!');
         }
