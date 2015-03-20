@@ -538,7 +538,7 @@ var App = {};
             var pointsText = '';
             if (value === Round.target && extraPoints) {
                 outputWord = '_' + word + '_';
-                pointsText = '(' + winWords[word].value + ' + ' + extraPoints + ' P)';
+                pointsText = ' (' + winWords[word].value + ' + ' + extraPoints + ' P)';
                 value += extraPoints;
             }
             if (soloPoints && winWords[word].winners.length == 1) {
@@ -548,7 +548,7 @@ var App = {};
                     pointsText = '(' + winWords[word].value + ' P)';
                 }
             }
-            text += '°#° ['+ winWords[word].payout +'] ' + outputWord + ' ' + pointsText + ': ';
+            text += '°#° ' + outputWord + ' - ' + winWords[word].payout + ' P' + pointsText + ': ';
 
             var firstWinner = true;
             for (var k = 0; k < winWords[word].winners.length; ++k) {
