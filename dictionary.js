@@ -157,7 +157,7 @@ var Dictionary = {};
     function teach(user, word) {
         if (user.isChannelModerator() || user.isChannelOwner()) {
             word = word.trim().toUpperCase();
-            if (word.length > Settings.LetterCount) {
+            if (word.length > Settings.LetterCount + Settings.VowelCount) {
                 sendPrivateMessage(user, 'Das Wort "' + word + '" ist nicht möglich. Zu lang.');
                 return;
             }

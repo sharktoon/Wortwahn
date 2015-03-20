@@ -453,19 +453,24 @@ var App = {};
 
         var text = 'Die Beiträge diese Runde:';
 
-        var allowedFreePass = Settings.LetterCount - 2 - RandomOperations.nextInt(4);
+        var allowedFreePass = Settings.LetterCount + Settings.VowelCount - 1 - RandomOperations.nextInt(4);
 
         for (var word in Voting) {
             if (Voting.hasOwnProperty(word)) {
                 if(Voting[word].accept.length > Voting[word].reject.length) {
+                    Voting[word].result = 'accept';
                     Dictionary.userAccept(word, 1);
                 } else if(word.length <= allowedFreePass && Voting[word].accept.length + Voting[word].submit.length > Voting[word].reject.length) {
                     Dictionary.userAccept(word, 1);
+                    Voting[word].result = 'tie-accept';
+                } else if (Voting[word].accept.length + Voting[word].submit.length > Voting[word].reject.length) {
+                    Voting[word].result = 'tie-reject';
+                } else {
+                    Voting[word].result = 'reject';
                 }
             }
         }
 
-        var allowedFreePass = Settings.LetterCount - 2 - RandomOperations.nextInt(3);
         var totalWinners = 0;
         for (var userId in Round.players) {
             if (Round.players.hasOwnProperty(userId)) {
@@ -489,14 +494,6 @@ var App = {};
                             winners: [userId],
                             value: entry.value
                         };
-
-                        var index = 0;
-                        for (; index < sortedWords.length; ++index) {
-                            if (winWords[sortedWords[index]].value < entry.value) {
-                                break;
-                            }
-                        }
-                        sortedWords.splice(index, 0, entry.word);
                     }
                 }
             }
@@ -511,26 +508,47 @@ var App = {};
             soloPoints = 0;
         }
 
+        for (var word in winWords) {
+            if (winWords.hasOwnProperty(word)) {
+                var payout = winWords[word].value;
+                if (winWords[word].value === Round.target) {
+                    payout += extraPoints;
+                }
+                if (winWords[word].winners.length == 1) {
+                    payout += soloPoints;
+                }
+                winWords[word].payout = payout;
+
+                var index = 0;
+                for (; index < sortedWords.length; ++index) {
+                    if (winWords[sortedWords[index]].payout < payout) {
+                        break;
+                    }
+                }
+                sortedWords.splice(index, 0, word);
+            }
+        }
+
         for (var i = 0; i < sortedWords.length; ++i) {
             var word = sortedWords[i];
             var outputWord = word;
             var endPiece = '';
-            var value = winWords[sortedWords[i]].value;
+            var value = winWords[word].value;
 
-            var pointsText = '(' + value;
+            var pointsText = '';
             if (value === Round.target && extraPoints) {
                 outputWord = '_' + word + '_';
-                pointsText += ' + ' + extraPoints;
+                pointsText = '(' + winWords[word].value + ' + ' + extraPoints + ' P)';
                 value += extraPoints;
             }
             if (soloPoints && winWords[word].winners.length == 1) {
                 endPiece = ' (Solo: +' + soloPoints + ' P)';
                 value += soloPoints;
+                if (pointsText == '') {
+                    pointsText = '(' + winWords[word].value + ' P)';
+                }
             }
-            pointsText += ' P)';
-            text += '°#°- ' + outputWord + ' ' + pointsText + ': ';
-
-
+            text += '°#° ['+ winWords[word].payout +'] ' + outputWord + ' ' + pointsText + ': ';
 
             var firstWinner = true;
             for (var k = 0; k < winWords[word].winners.length; ++k) {
