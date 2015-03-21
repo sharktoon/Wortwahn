@@ -677,9 +677,7 @@ var App = {};
                     Reward.awardPoints(user, bonusPoints);
 
                     if (rank <= 3) {
-                        setTimeout(function() {
-                            Reward.awardHat(user, '&03', 'Für deine Platzierung in der Extra Runde hast du diesen Hut gewonnen!');
-                        }, 0);
+                        Reward.awardHat(user, '&03', 'Für deine Platzierung in der Extra Runde hast du diesen Hut gewonnen!');
                     }
                 }
                 text += '°##°Glückwunsch an alle Gewinner!';
