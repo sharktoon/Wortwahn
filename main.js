@@ -106,6 +106,7 @@ var Settings = {
     ValueToAccept: 10,
     BonusTarget: {
         Points: 15,
+        NeighborPoints: 5,
         MinPlayers: 3
     },
     BonusSolo: {
@@ -500,8 +501,10 @@ var App = {};
         }
 
         var extraPoints = Settings.BonusTarget.Points;
+        var neighborPoints = Settings.BonusTarget.NeighborPoints;
         if (totalWinners < Settings.BonusTarget.MinPlayers) {
             extraPoints = 1;
+            neighborPoints = 0;
         }
         var soloPoints = Settings.BonusSolo.Points;
         if (totalWinners < Settings.BonusSolo.MinPlayers) {
@@ -513,7 +516,10 @@ var App = {};
                 var payout = winWords[word].value;
                 if (winWords[word].value === Round.target) {
                     payout += extraPoints;
+                } else if (neighborPoints && (winWords[word].value == Round.target + 1 || winWords[word].value == Round.target - 1)) {
+                    payout += neighborPoints;
                 }
+
                 if (winWords[word].winners.length == 1) {
                     payout += soloPoints;
                 }
@@ -540,12 +546,16 @@ var App = {};
                 outputWord = '_' + word + '_';
                 pointsText = ' (' + winWords[word].value + ' + ' + extraPoints + ' P)';
                 value += extraPoints;
+            } else if (neighborPoints && (winWords[word].value == Round.target + 1 || winWords[word].value == Round.target - 1)) {
+                outputWord = '"' + word + '"';
+                pointsText = ' (' + winWords[word].value + ' + ' + neighborPoints + ' P)';
+                value += neighborPoints;
             }
             if (soloPoints && winWords[word].winners.length == 1) {
                 endPiece = ' (Solo: +' + soloPoints + ' P)';
                 value += soloPoints;
                 if (pointsText == '') {
-                    pointsText = '(' + winWords[word].value + ' P)';
+                    pointsText = ' (' + winWords[word].value + ' P)';
                 }
             }
             text += '°#° ' + outputWord + ' - ' + winWords[word].payout + ' P' + pointsText + ': ';
@@ -667,7 +677,9 @@ var App = {};
                     Reward.awardPoints(user, bonusPoints);
 
                     if (rank <= 3) {
-                        Reward.awardHat(user, '&03', 'Für deine Platzierung in der Extra Runde hast du diesen Hut gewonnen!');
+                        setTimeout(function() {
+                            Reward.awardHat(user, '&03', 'Für deine Platzierung in der Extra Runde hast du diesen Hut gewonnen!');
+                        }, 0);
                     }
                 }
                 text += '°##°Glückwunsch an alle Gewinner!';
