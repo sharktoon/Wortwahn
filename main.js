@@ -821,8 +821,45 @@ var App = {};
         }
     }
 
+    function revealVoting(user) {
+        if (user.isChannelModerator() || user.isChannelOwner()) {
+            if (LastRound.Voting) {
+                var text = 'Abstimmungsergebnisse der letzten Runde:';
+                for (var word in LastRound.Voting) {
+                    text += '°#° ' + word;
+                    text += ' - eingereicht: ';
+                    for (var i = 0; i < word.submit.length; ++i) {
+                        var userId = word.submit[i];
+                        var user = KnuddelsServer.getUser(userId);
+                        text += Reward.showUser(user) + '; ';
+                    }
+
+                    text += ' - dafür: ';
+                    for (var i = 0; i < word.accept.length; ++i) {
+                        var userId = word.accept[i];
+                        var user = KnuddelsServer.getUser(userId);
+                        text += Reward.showUser(user) + '; ';
+                    }
+
+                    text += ' - dagegen: ';
+                    for (var i = 0; i < word.reject.length; ++i) {
+                        var userId = word.reject[i];
+                        var user = KnuddelsServer.getUser(userId);
+                        text += Reward.showUser(user) + '; ';
+                    }
+                }
+                sendPrivateMessage(user, text);
+            } else {
+                sendPrivateMessage(user, 'Keine Ergebnisse vorhanden.');
+            }
+        } else {
+            sendPrivateMessage(user, 'Das geht so nicht.')
+        }
+    }
+
     App.chatCommands = {
         settings: changeSettings,
+        stimmencheck: revealVoting,
 
         x: submitWord,
         submit: submitWord,
