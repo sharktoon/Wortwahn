@@ -600,7 +600,7 @@ var App = {};
                     pointsText = ' (' + winWords[word].value + ' P)';
                 }
             }
-            text += '°#° ' + outputWord + ' - ' + wordToColorString(word) +' - ' + winWords[word].payout + ' P' + pointsText + ': ';
+            text += '°#° ' + outputWord + ' - ' + winWords[word].payout + ' P' + pointsText + ': ';
 
             var firstWinner = true;
             for (var k = 0; k < winWords[word].winners.length; ++k) {
@@ -676,7 +676,12 @@ var App = {};
         Round.stage = 'none';
         Round.players = {};
 
-        LastRound.Voting = Voting;
+        LastRound.Voting = {};
+        for (var word in Voting) {
+            if (Voting.hasOwnProperty(word)) {
+                LastRound.Voting[word] = Voting[word];
+            }
+        }
         Voting = {};
 
         if (ExtraInstance.Active) {
