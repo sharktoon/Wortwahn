@@ -105,12 +105,14 @@ var Settings = {
     BonusTarget: {
         Points: 15,
         NeighborPoints: 5,
+        LonerPoints: 5,
         MinPlayers: 3
     },
     BonusSolo: {
         Points: 3,
         MinPlayers: 4
     },
+    DisplayRejectedWords: true,
     Timer: {
         score: 3000,
         signup: 5000,
@@ -533,7 +535,7 @@ var App = {};
         var extraPoints = Settings.BonusTarget.Points;
         var neighborPoints = Settings.BonusTarget.NeighborPoints;
         if (totalWinners < Settings.BonusTarget.MinPlayers) {
-            extraPoints = 1;
+            extraPoints = Settings.BonusTarget.LonerPoints;
             neighborPoints = 0;
         }
         var soloPoints = Settings.BonusSolo.Points;
@@ -618,8 +620,22 @@ var App = {};
             text += endPiece;
         }
 
-        for (var i = 0; i < rejectedWords.length; ++i) {
-            
+        if (rejectedWords.length > 0 && Settings.DisplayRejectedWords) {
+            text += '°##°"Abgelehnte Worte"';
+            for (var i = 0; i < rejectedWords.length; ++i) {
+                var word = rejectedWords[i];
+                if (Voting.hasOwnProperty(word)) {
+                    var entry = Voting[word];
+                    text += '°#° ' + entry.original + ' : ';
+                    if (entry.accept.length == 0 && entry.reject.length == 0) {
+                        text += 'unentscheiden - Münzwurf verloren';
+                    } else if (entry.result == 'tie-reject') {
+                        text += 'unentschieden - Münzwurf verloren'
+                    } else if (entry.result == 'reject') {
+                        text += 'abgelehnt';
+                    }
+                }
+            }
         }
 
         if (ExtraInstance.Active) {
@@ -649,6 +665,7 @@ var App = {};
         Round.stage = 'none';
         Round.players = {};
 
+        LastRound.Voting = Voting;
         Voting = {};
 
         if (ExtraInstance.Active) {
