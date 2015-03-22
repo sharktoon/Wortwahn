@@ -59,8 +59,6 @@ var LastRound = {
     players: {}
 };
 
-var Candidates = [];
-
 // 'WORD': { accept: [], reject: [], submit: [] }
 var Voting = {};
 
@@ -618,6 +616,7 @@ var App = {};
         Voting = {};
 
         if (ExtraInstance.Active) {
+            var hatWinners = [];
             var text = 'Runde vorbei! Nächste Runde startet gleich!';
 
             var sortedPlayers = [];
@@ -677,13 +676,20 @@ var App = {};
                     Reward.awardPoints(user, bonusPoints);
 
                     if (rank <= 3) {
-                        Reward.awardHat(user, '&03', 'Für deine Platzierung in der Extra Runde hast du diesen Hut gewonnen!');
+                        hatWinners.push(userId);
+                        // Reward.awardHat(user, '&03', 'Für deine Platzierung in der Extra Runde hast du diesen Hut gewonnen!');
                     }
                 }
                 text += '°##°Glückwunsch an alle Gewinner!';
             }
 
             sendPublicMessage(text);
+
+            for (var i = 0; i < hatWinners.length; ++i) {
+                userId = hatWinners[i];
+                var user = KnuddelsServer.getUser(userId);
+                Reward.awardHat(user, '&03', 'Für deine Platzierung in der Extra Runde hast du diesen Hut gewonnen!');
+            }
         } else if (ExtraInstance.RoundsToStart >= Settings.ExtraRound.Pause) {
             ExtraInstance.Active = true;
             ExtraInstance.Turns = 0;
