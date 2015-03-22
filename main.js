@@ -227,6 +227,16 @@ var App = {};
         return result;
     }
 
+    function wordToColorString(word) {
+        var result = ' ';
+        for (var i = 0; i < word.length; ++i) {
+            var colorCode = ValueColorCodes[LetterValue[word[i]]];
+            result = result + '°r' + colorCode + '°' + word[i];
+        }
+        result += '°r°' + Settings.DefaultBotColor;
+        return result;
+    }
+
     /** retrieve value of the provided word - returns -1 if word was not possible */
     function getWordValue(letters, word) {
         if (letters.length < word.length) {
@@ -590,7 +600,7 @@ var App = {};
                     pointsText = ' (' + winWords[word].value + ' P)';
                 }
             }
-            text += '°#° ' + outputWord + ' - ' + word +' - ' + winWords[word].payout + ' P' + pointsText + ': ';
+            text += '°#° ' + outputWord + ' - ' + wordToColorString(word) +' - ' + winWords[word].payout + ' P' + pointsText + ': ';
 
             var firstWinner = true;
             for (var k = 0; k < winWords[word].winners.length; ++k) {
