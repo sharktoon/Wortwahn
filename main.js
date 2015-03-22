@@ -295,7 +295,7 @@ var App = {};
         var obj = Round.players[userId];
 
         var originalWord = params.trim();
-        var entry = turnToSpellWord(original);
+        var entry = turnToSpellWord(originalWord);
 
         if (entry.length == 0) {
             sendPrivateMessage(user, 'Du musst ein Wort eingeben.°#°Du kannst diese Buchstaben verwenden:°#°' + lettersToString(Round.letters));
@@ -579,7 +579,7 @@ var App = {};
                 pointsText = ' (' + winWords[word].value + ' + ' + extraPoints + ' P)';
                 value += extraPoints;
             } else if (neighborPoints && (winWords[word].value == Round.target + 1 || winWords[word].value == Round.target - 1)) {
-                outputWord = '"' + word + '"';
+                outputWord = '"' + winWords[word].original + '"';
                 pointsText = ' (' + winWords[word].value + ' + ' + neighborPoints + ' P)';
                 value += neighborPoints;
             }
@@ -620,19 +620,20 @@ var App = {};
             text += endPiece;
         }
 
+        var rejectText = '';
         if (rejectedWords.length > 0 && Settings.DisplayRejectedWords) {
-            text += '°##°"Abgelehnte Worte"';
+            rejectText = '°##°"Abgelehnte Worte"';
             for (var i = 0; i < rejectedWords.length; ++i) {
                 var word = rejectedWords[i];
                 if (Voting.hasOwnProperty(word)) {
                     var entry = Voting[word];
-                    text += '°#° ' + entry.original + ' : ';
+                    rejectText += '°#° ' + entry.original + ' : ';
                     if (entry.accept.length == 0 && entry.reject.length == 0) {
-                        text += 'unentscheiden - Münzwurf verloren';
+                        rejectText += 'unentscheiden - Münzwurf verloren';
                     } else if (entry.result == 'tie-reject') {
-                        text += 'unentschieden - Münzwurf verloren'
+                        rejectText += 'unentschieden - Münzwurf verloren'
                     } else if (entry.result == 'reject') {
-                        text += 'abgelehnt';
+                        rejectText += 'abgelehnt';
                     }
                 }
             }
@@ -645,9 +646,9 @@ var App = {};
         }
 
         if (totalWinners > 0) {
-            sendPublicMessage(text);
+            sendPublicMessage(text + rejectText);
         } else {
-            sendPublicMessage("Keine Beiträge diese Runde!");
+            sendPublicMessage("Keine Beiträge diese Runde!" + rejectText);
         }
 
         setTimeout(function() {
@@ -826,24 +827,25 @@ var App = {};
             if (LastRound.Voting) {
                 var text = 'Abstimmungsergebnisse der letzten Runde:';
                 for (var word in LastRound.Voting) {
-                    text += '°#° ' + word;
-                    text += ' - eingereicht: ';
-                    for (var i = 0; i < word.submit.length; ++i) {
-                        var userId = word.submit[i];
+                    var entry = LastRound.Voting[word];
+                    text += '°#° ' + word + ' - ' + entry.result;
+                    text += '°#°   eingereicht: ';
+                    for (var i = 0; i < entry.submit.length; ++i) {
+                        var userId = entry.submit[i];
                         var user = KnuddelsServer.getUser(userId);
                         text += Reward.showUser(user) + '; ';
                     }
 
-                    text += ' - dafür: ';
-                    for (var i = 0; i < word.accept.length; ++i) {
-                        var userId = word.accept[i];
+                    text += '°#°   dafür: ';
+                    for (var i = 0; i < entry.accept.length; ++i) {
+                        var userId = entry.accept[i];
                         var user = KnuddelsServer.getUser(userId);
                         text += Reward.showUser(user) + '; ';
                     }
 
-                    text += ' - dagegen: ';
-                    for (var i = 0; i < word.reject.length; ++i) {
-                        var userId = word.reject[i];
+                    text += '°#°   dagegen: ';
+                    for (var i = 0; i < entry.reject.length; ++i) {
+                        var userId = entry.reject[i];
                         var user = KnuddelsServer.getUser(userId);
                         text += Reward.showUser(user) + '; ';
                     }
@@ -860,6 +862,7 @@ var App = {};
     App.chatCommands = {
         settings: changeSettings,
         stimmencheck: revealVoting,
+        stimmen: revealVoting,
 
         x: submitWord,
         submit: submitWord,
