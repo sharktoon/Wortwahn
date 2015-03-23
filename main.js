@@ -537,7 +537,9 @@ var App = {};
                         };
                     }
                 } else {
-                    rejectedWords.push(entry.word);
+                    if (rejectedWords.indexOf(entry.word) == -1) {
+                        rejectedWords.push(entry.word);
+                    }
                 }
             }
         }
