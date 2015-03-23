@@ -839,8 +839,8 @@ var App = {};
         }
     }
 
-    function revealVoting(user) {
-        if (user.isChannelModerator() || user.isChannelOwner()) {
+    function revealVoting(modUser) {
+        if (modUser.isChannelModerator() || modUser.isChannelOwner()) {
             if (LastRound.Voting) {
                 var text = 'Abstimmungsergebnisse der letzten Runde:';
                 for (var word in LastRound.Voting) {
@@ -867,12 +867,12 @@ var App = {};
                         text += Reward.showUser(user) + '; ';
                     }
                 }
-                sendPrivateMessage(user, text);
+                sendPrivateMessage(modUser, text);
             } else {
-                sendPrivateMessage(user, 'Keine Ergebnisse vorhanden.');
+                sendPrivateMessage(modUser, 'Keine Ergebnisse vorhanden.');
             }
         } else {
-            sendPrivateMessage(user, 'Das geht so nicht.')
+            sendPrivateMessage(modUser, 'Das geht so nicht.')
         }
     }
 
