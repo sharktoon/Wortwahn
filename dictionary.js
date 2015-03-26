@@ -62,6 +62,7 @@ var Dictionary = {};
             }
         }
 
+        sendPrivateMessage(user, JSON.stringify(wordList));
         metaCount += wordList.length;
         sendPrivateMessage(user, "Gesamtzahl Worte: " + metaCount);
     }
