@@ -221,7 +221,7 @@ var App = {};
         for (var i = 0; i < letters.length; ++i) {
             var colorCode = ValueColorCodes[LetterValue[letters[i]]];
             //result = result + letters[i] + '(' + LetterValue[letters[i]] + ') ';
-            result = result + '°r' + colorCode + '°_' + letters[i] + '_°r10°' + LetterValue[letters[i]] + '  ';
+            result = result + '°r' + colorCode + '°_' + letters[i] + '_°r10[120,120,120]°' + LetterValue[letters[i]] + '°r°  ';
         }
         result += '°r°' + Settings.DefaultBotColor;
         return result;
