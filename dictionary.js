@@ -41,6 +41,31 @@ var Dictionary = {};
         'ZONE': { okay: true }
     };
 
+    function showAllKnownWords(user, params) {
+        var metaCount = 0;
+        var wordList = [];
+        var dataCount = 0;
+
+        for (var word in WordBase) {
+            if (dataCount > 1000) {
+                sendPrivateMessage(user, JSON.stringify(wordList));
+
+                metaCount += wordList.length;
+                wordList = [];
+                dataCount = 0;
+            }
+
+            if (WordBase.hasOwnProperty(word) && WordBase[word].okay) {
+                wordList.push(word);
+                dataCount += word.length;
+                dataCount += 4;
+            }
+        }
+
+        metaCount += wordList.length;
+        sendPrivateMessage(user, "Gesamtzahl Worte: " + metaCount);
+    }
+
     var STORAGE = "_STORAGE_";
     var STORAGE_SIZE = "SIZE_STORAGE";
 
@@ -213,6 +238,7 @@ var Dictionary = {};
         load: load,
 
         showUserList: showUserAccept,
+        showAllKnownWords: showAllKnownWords,
 
         check: checkWord,
         userAccept: userAccept,

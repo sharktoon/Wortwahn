@@ -930,6 +930,7 @@ var App = {};
 
         teach: Dictionary.teach,
         forget: Dictionary.forget,
+        showallwords: Dictionary.showAllKnownWords,
         showuseraccept: Dictionary.showUserList
     };
 
