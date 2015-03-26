@@ -275,7 +275,7 @@ var App = {};
             'Ö': 'OE',
             'Ü': 'UE',
             'ß': 'SS'
-        }
+        };
         var result = entryword;
         for (var germanLetter in REPLACEMENTS) {
             if (REPLACEMENTS.hasOwnProperty(germanLetter)) {
@@ -283,7 +283,7 @@ var App = {};
             }
         }
 
-        return result.toUpperCase();
+        return result;
     }
 
     /** submit a word by a user */
@@ -306,6 +306,8 @@ var App = {};
 
         var originalWord = params.trim();
         var entry = turnToSpellWord(originalWord);
+        var hasChanges = entry != originalWord;
+        entry = entry.toUpperCase();
 
         if (entry.length == 0) {
             sendPrivateMessage(user, 'Du musst ein Wort eingeben.°#°Du kannst diese Buchstaben verwenden:°#°' + lettersToString(Round.letters));
@@ -342,18 +344,20 @@ var App = {};
             obj.value = value;
             obj.word = entry;
             obj.original = originalWord;
+            obj.hasChanges = hasChanges;
 
             obj.step = 'vote';
             if (Voting.hasOwnProperty(entry)) {
                 Voting[entry].submit.push(userId);
             } else {
-                Voting[entry] = { accept: [], reject: [], submit: [userId], original: originalWord };
+                Voting[entry] = { accept: [], reject: [], submit: [userId], original: originalWord, hasChanges: hasChanges };
             }
             sendPrivateMessage(user, 'Dein Wort "' + entry + '" hat den Wert ' + value + ' - falls es von den anderen als gültig akzeptiert wird!' + extra);
         } else if (acceptance === 'accept') {
             obj.value = value;
             obj.word = entry;
             obj.original = originalWord;
+            obj.hasChanges = hasChanges;
 
             obj.step = 'okay';
             sendPrivateMessage(user, 'Dein Wort "' + entry + '" hat den Wert ' + value + '.' + extra);
@@ -372,6 +376,7 @@ var App = {};
                 step: 'none',
                 word: '',
                 original: '',
+                hasChanges: false,
                 value: -1,
                 win: false
             };
@@ -470,9 +475,15 @@ var App = {};
         for (var entry in Voting) {
             if (Voting.hasOwnProperty(entry)) {
                 var original = Voting[entry].original;
-                text += '°##° ' + original + ' (' + entry + ') - _°>okay|/accept ' + entry + '<°_ oder _°>falsch|/reject ' + entry + '<°_';
+                var wordText = original;
+                if (Voting[entry].hasChanges) {
+                    wordText += ' (' + entry + ')';
+                }
+                text += '°##° ' + wordText + ' - _°>okay|/accept ' + entry + '<°_ oder _°>falsch|/reject ' + entry + '<°_';
             }
         }
+
+        text += '°##°Deine Meinung ist gefragt! Welches Wort ist richtig? Welches ist frei erfunden?';
 
         sendPublicMessage(text);
 
