@@ -469,7 +469,7 @@ var App = {};
 
     /** starts voting phase - every player gets the vote links */
     function beginVoting() {
-        var text = 'Folgende Worte wurde eingereicht:';
+        var text = 'Folgende Worte wurden eingereicht:';
         Round.stage = 'vote';
 
         for (var entry in Voting) {
@@ -502,7 +502,7 @@ var App = {};
         var sortedWords = [];
         var rejectedWords = [];
 
-        var text = 'Die Beiträge diese Runde:';
+        var text = 'Die Beiträge dieser Runde:';
 
         var allowedFreePass = Settings.LetterCount + Settings.VowelCount - 1 - RandomOperations.nextInt(4);
 
