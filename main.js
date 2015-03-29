@@ -131,6 +131,23 @@ var Settings = {
         MinPlayers: 4,
         Pause: 20
     },
+    CrazyRound: {
+        Announcement: 5,
+        Duration: 5,
+        Rewards: [
+            { req: 50, points: 10 },
+            { req: 100, points: 25 },
+            { req: 500, points: 50 },
+            { req: 1000, points: 100 },
+            { req: 2500, knuddel: 1 },
+            { req: 5000, points: 250 },
+            { req: 10000, points: 500 },
+            { req: 25000, knuddel: 1 },
+            { req: 50000, points: 1000 },
+            { req: 100000, hat: '&02' }
+        ]
+    },
+    UseKnuddel: false,
     Season: {
         id: '2015-03',
         name: 'März'
@@ -155,6 +172,15 @@ var App = {};
         // players: userId -> { Points, Words }
         Players: {},
         Turns: 0
+    };
+
+    var CrazyInstance = {
+        // none, countdown, active
+        State: 'none',
+        Turns: 0,
+        // players: userId -> { Points, Words }
+        Players: {},
+        Total: 0
     };
     var LetterPool = [];
     var VowelPool = [];
@@ -440,7 +466,7 @@ var App = {};
         Round.letters = [];
         refillLetters(Round.letters);
 
-        sendPublicMessage('Die Buchstaben dieser Runde:°#°' + lettersToString(Round.letters) + '°#°Worte können mit ""/x WORT"" eingereicht werden.°#°Bonuspunkte wenn du es schaffst genau _' + Round.target + ' Punkte_ zu erreichen!');
+        sendPublicMessage('Die Buchstaben dieser Runde:°#°' + lettersToString(Round.letters) + '°#°Worte können mit ""/x WORT"" eingereicht werden. Z. B. Echt mit /x echt°#°Bonuspunkte wenn du es schaffst genau _' + Round.target + ' Punkte_ zu erreichen!');
 
         function endSubmit() {
             if (Round.stage == 'submit') {
@@ -627,7 +653,18 @@ var App = {};
 
                 text += Reward.showUser(user);
 
-                if (ExtraInstance.Active) {
+                if (CrazyInstance.State == 'active') {
+                    CrazyInstance.Total += value;
+                    if (CrazyInstance.Players.hasOwnProperty(userId)) {
+                        CrazyInstance.Players[userId].Points += value;
+                        CrazyInstance.Players[userId].Words += 1;
+                    } else {
+                        CrazyInstance.Players[userId] = {
+                            Points: value,
+                            Words: 1
+                        };
+                    }
+                } else if (ExtraInstance.Active) {
                     if (ExtraInstance.Players.hasOwnProperty(userId)) {
                         ExtraInstance.Players[userId].Points += value;
                         ExtraInstance.Players[userId].Words += 1;
@@ -664,10 +701,11 @@ var App = {};
 
         if (ExtraInstance.Active) {
             ++ExtraInstance.Turns;
+        } else if (CrazyInstance.State != 'none') {
+            ++CrazyInstance.Turns;
         } else if (totalWinners >= Settings.ExtraRound.MinPlayers) {
             ++ExtraInstance.RoundsToStart;
         }
-
         if (totalWinners > 0) {
             sendPublicMessage(text + rejectText);
         } else {
@@ -679,6 +717,147 @@ var App = {};
                 beginEndOfRound();
             }
         }, Settings.Timer.score);
+    }
+
+    /** gets a display for the rewards when at given points */
+    function displayCrazyRewards(points) {
+        var text = '';
+        var availableKnuddel = KnuddelsServer.getDefaultBotUser().getKnuddelAmount().asNumber();
+        for (var i = 0; i < Settings.CrazyRound.Rewards.length; ++i) {
+            var reward = Settings.CrazyRound.Rewards[i];
+            var separator = '';
+
+            var line = '°#°';
+            if (points >= reward.req) {
+                line += '(erreicht)'
+            } else {
+                line += '"' + reward.req + '"';
+            }
+            line += ' =>';
+
+            if (reward.hasOwnProperty('points')) {
+                line += separator + ' ' + reward.points + ' P';
+                separator = ';';
+            }
+            if (Settings.UseKnuddel && reward.hasOwnProperty('knuddel') && availableKnuddel >= reward.knuddel) {
+                line += separator + ' ' + reward.knuddel + ' Knuddel wird verlost!';
+                availableKnuddel -= reward.knuddel;
+                separator = ';';
+            }
+            if (reward.hasOwnProperty('hat') && Hats.hasOwnProperty(reward.hat)) {
+                var hat = "°>" + KnuddelsServer.getFullSystemImagePath(Hats[reward.hat].image) + "<° ";
+                line += separator + ' Hut ' + hat + ' für alle!';
+                separator = ' ';
+            }
+
+            if (separator != '') {
+                text += line;
+            }
+        }
+
+        return text;
+    }
+
+    /** do the payout - for all the fun! */
+    function awardCrayRoundEnd(points) {
+        var Payout = { points: 0, knuddel: 0, hats: [] };
+        var availableKnuddel = KnuddelsServer.getDefaultBotUser().getKnuddelAmount().asNumber();
+
+        var text = '°#°Auszahlungen der _Verrückten Runde_';
+
+        for (var i = 0; i < Settings.CrazyRound.Rewards.length; ++i) {
+            var reward = Settings.CrazyRound.Rewards[i];
+
+            if (points >= reward.req) {
+                if (reward.hasOwnProperty('points') && reward.points > Payout.points) {
+                    Payout.points = reward.points;
+                }
+                if (Settings.UseKnuddel && reward.hasOwnProperty('knuddel') && availableKnuddel >= reward.knuddel) {
+                    availableKnuddel -= reward.knuddel;
+                    Payout.knuddel += reward.knuddel;
+                }
+                if (reward.hasOwnProperty('hat') && Hats.hasOwnProperty(reward.hat)) {
+                    Payout.hats.push(reward.hat);
+                    var hat = "°>" + KnuddelsServer.getFullSystemImagePath(Hats[reward.hat].image) + "<° ";
+                    text += '°#°Hut ' + hat + ' für alle!';
+                }
+            }
+        }
+
+        text += '°#°+' + Payout.points + ' P für alle!';
+
+
+        var randomNumber = [];
+        for (var kCount = 0; kCount < Payout.knuddel; ++kCount) {
+            randomNumber.push(RandomOperations.nextInt(points));
+        }
+
+        for (var userId in CrazyInstance.Players) {
+            if (CrazyInstance.Players.hasOwnProperty(userId)) {
+                var user = KnuddelsServer.getUser(userId);
+                Reward.awardPoints(user, Payout.points);
+
+                for (var i = 0; i < Payout.hats.length; ++i) {
+                    Reward.awardHat(user, Payout.hats[i], 'Die Belohnung für die wahnsinnig tolle Verrückte Runde!');
+                }
+
+                if (Settings.UseKnuddel) {
+                    var payKnuddel = false;
+                    for (var kCount = 0; kCount < randomNumber.length; ++kCount) {
+                        randomNumber[kCount] -= CrazyInstance.Players[userId].Points;
+                        if (randomNumber[kCount] < 0 && !payKnuddel) {
+                            randomNumber.slice(kCount, 1);
+                            payKnuddel = true;
+                            KnuddelsServer.getDefaultBotUser().transferKnuddel(user, 1, { displayReasonText: 'Los-Gewinner aus der Verrückten Runde!'});
+                        }
+                    }
+                }
+            }
+        }
+
+        return text;
+    }
+
+    /** end of round, if crazy mode is active */
+    function crazyEndOfRound() {
+        var text = 'Runde vorbei! Nächste Runde startet gleich!';
+        if (CrazyInstance.State == 'countdown') {
+            var dt = Settings.CrazyRound.Announcement - CrazyInstance.Turns;
+            if (dt <= 0) {
+                text += '°#°_Verrückte Runde_ startet jetzt! Alle Punkte werden zusammengezählt.';
+
+                text += displayCrazyRewards(0);
+
+                CrazyInstance.State = 'active';
+                CrazyInstance.Turns = 0;
+                CrazyInstance.Players = {};
+                CrazyInstance.Total = 0;
+            } else {
+                text += '°#°_Verrückte Runde_ startet in _' + dt + '_ ';
+                if (dt == 1) text += 'Runde!';
+                else text += 'Runden!'
+            }
+        } else if (CrazyInstance.State == 'active') {
+            if (CrazyInstance.Turns >= Settings.CrazyRound.Duration) {
+                // do the payout
+                text += awardCrayRoundEnd(CrazyInstance.Total);
+
+                CrazyInstance.State = 'none';
+            } else {
+                text += '°#°_Verrückte Runde_ läuft! Schon _' + CrazyInstance.Total + ' Punkte_ gesammelt! Runde ' + CrazyInstance.Turns + ' von ' + Settings.CrazyRound.Duration;
+                text += displayCrazyRewards(CrazyInstance.Total);
+            }
+        }
+
+        sendPublicMessage(text);
+    }
+
+    function startCrazyRound(user) {
+        if (user.isChannelModerator() || user.isChannelOwner()) {
+            CrazyInstance.State = 'countdown';
+            CrazyInstance.Turns = 0;
+            sendPrivateMessage(user, 'Verrückte Runde wird gleich gestartet!');
+        }
     }
 
     /** end of round - resets all necessary fields */
@@ -772,6 +951,8 @@ var App = {};
                 var user = KnuddelsServer.getUser(userId);
                 Reward.awardHat(user, '&03', 'Für deine Platzierung in der Extra Runde hast du diesen Hut gewonnen!');
             }
+        } else if (CrazyInstance.State != 'none') {
+            crazyEndOfRound();
         } else if (ExtraInstance.RoundsToStart >= Settings.ExtraRound.Pause) {
             ExtraInstance.Active = true;
             ExtraInstance.Turns = 0;
@@ -820,7 +1001,7 @@ var App = {};
         rulesText += '°#°Das Spiel ähnelt Scrabble - es geht darum Buchstaben zu legen. Jeder Buchstabe hat einen gewissen Wert.';
         rulesText += '°#°Jeder Spieler bekommt die gleichen Buchstaben um damit ein Wort zu legen.';
         rulesText += '°#°Folgende Befehle sind wichtig:';
-        rulesText += '°#°/x WORT - reicht ein Wort ein, falls du die richtigen Buchstaben dafür hast!';
+        rulesText += '°#°/x WORT - reicht WORT ein, falls du die richtigen Buchstaben dafür hast!';
         rulesText += '°#°    Eine private Nachricht an die App geht dafür auch.';
         rulesText += '°#°°>/regeln|/regeln<° - zeigt diese Hilfe an.';
         rulesText += '°#°°>/punkte|/punkte<° - zeigt die Rangliste für die Saison an';
@@ -927,6 +1108,7 @@ var App = {};
         equiphat: Reward.equipHat,
 
         wettkampf: startExtraRound,
+        startcrazy: startCrazyRound,
 
         teach: Dictionary.teach,
         forget: Dictionary.forget,
