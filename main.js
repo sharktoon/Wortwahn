@@ -764,6 +764,7 @@ var App = {};
         var availableKnuddel = KnuddelsServer.getDefaultBotUser().getKnuddelAmount().asNumber();
 
         var text = '°#°Auszahlungen der _Verrückten Runde_';
+        text += '°#°Erreichte Gesammtpunkte: ' + points;
 
         for (var i = 0; i < Settings.CrazyRound.Rewards.length; ++i) {
             var reward = Settings.CrazyRound.Rewards[i];
