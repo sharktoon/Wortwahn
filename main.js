@@ -185,6 +185,9 @@ var App = {};
     var LetterPool = [];
     var VowelPool = [];
 
+    /** minimum of knuddel the bot needs to own before sharing them */
+    var MIN_KNUDDEL = 5;
+
     /** fills the letters with available letters from the pool */
     function refillLetters(letters) {
         while(letters.length < Settings.LetterCount) {
@@ -722,7 +725,7 @@ var App = {};
     /** gets a display for the rewards when at given points */
     function displayCrazyRewards(points) {
         var text = '';
-        var availableKnuddel = KnuddelsServer.getDefaultBotUser().getKnuddelAmount().asNumber();
+        var availableKnuddel = KnuddelsServer.getDefaultBotUser().getKnuddelAmount().asNumber() - MIN_KNUDDEL;
         for (var i = 0; i < Settings.CrazyRound.Rewards.length; ++i) {
             var reward = Settings.CrazyRound.Rewards[i];
             var separator = '';
@@ -761,7 +764,7 @@ var App = {};
     /** do the payout - for all the fun! */
     function awardCrayRoundEnd(points) {
         var Payout = { points: 0, knuddel: 0, hats: [] };
-        var availableKnuddel = KnuddelsServer.getDefaultBotUser().getKnuddelAmount().asNumber();
+        var availableKnuddel = KnuddelsServer.getDefaultBotUser().getKnuddelAmount().asNumber() - MIN_KNUDDEL;
 
         var text = '°#°Auszahlungen der _Verrückten Runde_';
         text += '°#°Erreichte Gesammtpunkte: ' + points;
