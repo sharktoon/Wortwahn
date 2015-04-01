@@ -226,7 +226,9 @@ var Reward = {};
         message += "Der Hut °>" + KnuddelsServer.getFullSystemImagePath(hat.image) + "<° gehört nun dir!";
         message += " Du kannst ihn direkt _°>>>verwenden|/equiphat " + hat.id + "<°_";
 
-        sendPrivateMessage(user, message);
+        if (user.isOnline()) {
+            sendPrivateMessage(user, message);
+        }
     }
 
     function getOwnedHats(user) {

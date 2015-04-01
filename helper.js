@@ -14,3 +14,7 @@ function sendPrivateMessage(user, message) {
     user.sendPrivateMessage(Settings.DefaultBotColor + message);
 }
 
+/** check if a user has moderator rights, or is channel owner */
+function hasModRights(user) {
+    return modUser.isChannelModerator() || modUser.isChannelOwner();
+}

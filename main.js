@@ -1,6 +1,7 @@
 require('helper.js');
 require('reward.js');
 require('dictionary.js');
+require('season.js');
 
 // LETTER: value
 var LetterValue = {
@@ -1113,6 +1114,12 @@ var App = {};
 
         wettkampf: startExtraRound,
         startcrazy: startCrazyRound,
+
+        seasonId: Season.seasonId,
+        seasonName: Season.seasonName,
+        seasonHat: Season.seasonHat,
+        seasonCheck: Season.seasonCheck,
+        seasonCommit: Season.seasonCommit,
 
         teach: Dictionary.teach,
         forget: Dictionary.forget,
