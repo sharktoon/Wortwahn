@@ -2,7 +2,6 @@
  * handles season advancing and handing out rewards for placing in season.
  */
 
-
 var Season = (function() {
 
     var SeasonTopReward = '&01';
@@ -29,14 +28,15 @@ var Season = (function() {
 
     function checkNextSeason(user) {
         if (hasModRights(user)) {
-            var text = "Nächste Saison: '" + SeasonChange.NextSeason.name + "', id: '" + SeasonChange.NextSeason.id + "'";
+            var text = "Nächste Saison: '" + SeasonChange.NextSeason.name + "' - alte Saison: '" + Settings.Season.name + "', '" + Settings.LastSeason.name + "'";
+            text += "°#°id: '" + SeasonChange.NextSeason.id + "' - alte Saison: '" + Settings.Season.id + "', '" + Settings.LastSeason.id + "'";
             var hat = "°>" + KnuddelsServer.getFullSystemImagePath(Hats[SeasonChange.HatReward].image) + "<° ";
             text += '°#°Hut-Belohnung für Teilnahme: ' + hat;
             text += ' ab ' + SeasonChange.PointsRequired + ' P';
-            if (Settings.Season.id == SeasonChange.NextSeason.id && Settings.LastSeason.id == SeasonChange.NextSeason.id) {
-                text += '°##° --> Season Id nicht gültig';
+            if (Settings.Season.id == SeasonChange.NextSeason.id || Settings.LastSeason.id == SeasonChange.NextSeason.id) {
+                text += '°##° Season Id nicht gültig';
             } else {
-                text += '°##° °>Bestätigen!|/seasonCommit ' + nextSeasonKey + '°';
+                text += '°##° °>Bestätigen!|/seasonCommit ' + nextSeasonKey + '<°';
             }
             sendPrivateMessage(user, text);
         }
@@ -47,10 +47,10 @@ var Season = (function() {
         if (hasModRights(user)) {
             changeKey();
 
-            var hatkey = param.trim();
-            if (Hats.hasOwnProperty(hatkey)) {
-                SeasonChange.HatReward = hatkey;
-                var hat = "°>" + KnuddelsServer.getFullSystemImagePath(Hats[hatkey].image) + "<° ";
+            var hatKey = param.trim();
+            if (Hats.hasOwnProperty(hatKey)) {
+                SeasonChange.HatReward = hatKey;
+                var hat = "°>" + KnuddelsServer.getFullSystemImagePath(Hats[hatKey].image) + "<° ";
                 sendPrivateMessage(user, "Hut " + hat + "als Belohnung für Teilnahme eingestellt.");
             } else {
                 sendPrivateMessage(user, "Hut nicht gefunden!");
@@ -61,13 +61,17 @@ var Season = (function() {
     function advanceSeason(user, param) {
         // is mod user? and has correct key?
         if (hasModRights(user) && param.trim() == nextSeasonKey) {
+            changeKey();
+
+            sendPrivateMessage(user, 'Saison wird beendet!');
+
             var lastSeasonName = Settings.Season.name;
             var params = {
                 ascending: false,
                 count: 25
             };
 
-            var entries = UserPersistenceNumbers.getSortedEntries(Settings.Season, params);
+            var entries = UserPersistenceNumbers.getSortedEntries(Settings.Season.id, params);
             for (var index = 0; index < entries.length; ++index) {
                 var entry = entries[index];
                 var rank = entry.getRank();
@@ -78,18 +82,18 @@ var Season = (function() {
                 }
             }
 
-            UserPersistenceNumbers.each(Settings.Season, function(user) {
+            UserPersistenceNumbers.each(Settings.Season.id, function(user) {
                 Reward.awardHat(user, SeasonChange.HatReward, 'Für die Teilnahme an der Saison ' + lastSeasonName + '!');
                 return true;
             }, { ascending: false, minimumValue: SeasonChange.PointsRequired } );
 
             // destroy previous last season data
-            UserPersistanceNumbers.deleteAll(Settings.LastSeason.id);
+            UserPersistenceNumbers.deleteAll(Settings.LastSeason.id);
 
             Settings.LastSeason = Settings.Season;
             Settings.Season = {
-                id: SeasonChange.id,
-                name: SeasonChange.name
+                id: SeasonChange.NextSeason.id,
+                name: SeasonChange.NextSeason.name
             };
         }
     }
