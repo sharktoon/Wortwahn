@@ -157,6 +157,7 @@ var Settings = {
         id: '2015-02',
         name: 'Februar'
     },
+    TargetDice: [8, 8],
 
     DefaultBotColor: '°GG°'
 };
@@ -296,8 +297,8 @@ var App = {};
 
     function turnToSpellWord(entryword) {
         var REPLACEMENTS = {
-            ' ': '',
-            '.': '',
+            '-': '',
+            "'": '',
             'ä': 'AE',
             'ö': 'OE',
             'ü': 'UE',
@@ -465,7 +466,12 @@ var App = {};
 
     /** starts submit phase - every player gets letters assigned */
     function beginSubmit() {
-        Round.target = 2 + RandomOperations.nextInt(10) + RandomOperations.nextInt(10);
+        var dice = 0;
+        for (var die = 0; die < Settings.TargetDice.length; ++die) {
+            dice += 1 + RandomOperations.nextInt(Settings.TargetDice[die]);
+        }
+
+        Round.target = dice;
         Round.stage = 'submit';
         Round.letters = [];
         refillLetters(Round.letters);
