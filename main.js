@@ -859,8 +859,10 @@ var App = {};
 
     function startCrazyRound(user) {
         if (user.isChannelModerator() || user.isChannelOwner()) {
-            CrazyInstance.State = 'countdown';
-            CrazyInstance.Turns = 0;
+            if (CrazyInstance.State == 'none') {
+                CrazyInstance.State = 'countdown';
+                CrazyInstance.Turns = 0;
+            }
             sendPrivateMessage(user, 'Verrückte Runde wird gleich gestartet!');
         }
     }
@@ -976,7 +978,7 @@ var App = {};
 
     /** advance the round to the next step */
     function advanceStep(user) {
-        if (!user.isChannelModerator() && !user.isChannelOwner()) {
+        if (!user.isChannelOwner()) {
             return;
         }
 

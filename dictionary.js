@@ -210,7 +210,7 @@ var Dictionary = {};
     }
 
     function forget(user, word) {
-        if (user.isChannelModerator() || user.isChannelOwner()) {
+        if (user.isChannelOwner()) {
             word = word.trim().toUpperCase();
             delete WordBase[word];
 
@@ -221,7 +221,7 @@ var Dictionary = {};
     }
 
     function forbid(user, word) {
-        if (user.isChannelModerator() || user.isChannelOwner()) {
+        if (user.isChannelOwner()) {
             word = word.trim().toUpperCase();
             if (word.length > Settings.LetterCount) {
                 sendPrivateMessage(user, 'Das Wort "' + word + '" ist nicht möglich. Zu lang.');
