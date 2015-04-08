@@ -1019,6 +1019,20 @@ var App = {};
         sendPrivateMessage(user, rulesText);
     }
 
+    // display a list of mcm commands
+    function showMcmCommands(user) {
+        if (hasModRights(user)) {
+            var mcmText = 'Hallo Chef!';
+            mcmText += '°#°Folgende zusätliche Befehle stehen dir als Moderator zur Verfügung:';
+            mcmText += '°#°°>/teach|/teach<° - Worte anschauen, und in die Datenbank übernehmen';
+            mcmText += '°#°°>/stimmen|/stimmen<° - zeigt die Abstimmung der jeweils letzten Runde';
+            mcmText += '°#°°>/startcrazy|/startcrazy<° - eine Verrückte Runde (Koop) starten';
+            mcmText += '°#°Mit beidem bitte nicht übertreiben! Und bei /teach bitte immer mit duden.de gegenchecken!';
+
+            sendPrivateMessage(user, mcmText);
+        }
+    }
+
     var ChangeSettingsLog = [];
 
     function changeSettings(user, param) {
@@ -1156,6 +1170,10 @@ var App = {};
     };
 
     App.onUserJoined = function(user) {
+        if (hasModRights(user)) {
+            showMcmCommands(user);
+        }
+
         var text = 'Willkommen! Einige Befehle werden erklärt, wenn du °>/regeln|/regeln<° eingibst.';
         if (Round.stage == 'submit') {
             text += '°##°Folgende Buchstaben sind gerade verfügbar:°#°' + lettersToString(Round.letters) + '°#°Mit /x WORT kannst du noch schnell ein Wort einreichen. Alternativ auch als /p an mich!';
