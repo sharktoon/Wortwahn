@@ -194,6 +194,10 @@ var Reward = {};
         var hat = Hats[param];
         if (hat === undefined) return;
 
+        if (user.getPersistence().getString(WORN_HAT) == param) {
+            return;
+        }
+
         if (user.getPersistence().hasObject(OWNED_HATS) && user.getPersistence().getObject(OWNED_HATS).indexOf(param) != -1) {
             user.getPersistence().setString(WORN_HAT, param);
         }
