@@ -1019,8 +1019,11 @@ var App = {};
         sendPrivateMessage(user, rulesText);
     }
 
+    var ChangeSettingsLog = [];
+
     function changeSettings(user, param) {
         if (user.isChannelModerator() || user.isChannelOwner()) {
+            ChangeSettingsLog.push({nick: user.getNick(), value: param});
             var newSettings = JSON.parse(param);
 
             for (var piece in newSettings) {
@@ -1029,8 +1032,26 @@ var App = {};
                     sendPrivateMessage(user, 'Changed Settings.' + piece + ' to ' + Settings[piece]);
                 }
             }
+
+            KnuddelsServer.getPersistence().setObject(SETTINGS, Settings);
         }
     }
+
+    function viewSettings(user, param) {
+        if (user.isChannelOwner()) {
+            param = param.trim();
+            if (Settings.hasOwnProperty(param)) {
+                sendPrivateMessage(user, 'Current Settings.' + param + ': ' + Settings[param]);
+            } else {
+                sendPrivateMessage(user, 'Current Settings: ' + Settings);
+            }
+
+            if (user.isChannelOwner()) {
+                sendPrivateMessage(user, '' + ChangeSettingsLog);
+            }
+        }
+    }
+
     function startExtraRound(user) {
         if (user.isChannelModerator() || user.isChannelOwner()) {
             sendPrivateMessage(user, 'Wettkampf startet gleich!');
@@ -1077,6 +1098,7 @@ var App = {};
 
     App.chatCommands = {
         settings: changeSettings,
+        settingsView: viewSettings,
         stimmencheck: revealVoting,
         stimmen: revealVoting,
 
@@ -1165,14 +1187,6 @@ var App = {};
         Dictionary.load();
 
         beginSubmit();
-    };
-
-    App.onPrepareShutdown = function() {
-        Dictionary.store();
-    };
-
-    App.onShutdown = function() {
-        KnuddelsServer.getPersistence().setObject(SETTINGS, Settings);
     };
 
 })();
