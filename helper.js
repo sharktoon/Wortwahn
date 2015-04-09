@@ -18,3 +18,17 @@ function sendPrivateMessage(user, message) {
 function hasModRights(user) {
     return user.isChannelModerator() || user.isChannelOwner();
 }
+
+/** checks if the channel is the root channel, or not */
+function canChangeStorage() {
+    var channelName = KnuddelsServer.getChannel().getChannelName();
+
+    var numbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    for (var i = 0; i < numbers.length; ++i) {
+        if (channelName.indexOf(numbers[i]) != -1) {
+            return false;
+        }
+    }
+
+    return true;
+}

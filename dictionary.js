@@ -182,6 +182,10 @@ var Dictionary = {};
 
     function teach(user, word) {
         if (user.isChannelModerator() || user.isChannelOwner()) {
+            if (!canChangeStorage()) {
+                sendPrivateMessage(user, 'In Tochertchannels nicht möglich!');
+                return;
+            }
             word = word.trim().toUpperCase();
             if (word.length > Settings.LetterCount + Settings.VowelCount) {
                 sendPrivateMessage(user, 'Das Wort "' + word + '" ist nicht möglich. Zu lang.');

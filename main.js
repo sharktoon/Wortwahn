@@ -1053,7 +1053,9 @@ var App = {};
                 }
             }
 
-            KnuddelsServer.getPersistence().setObject(SETTINGS, Settings);
+            if (canChangeStorage()) {
+                KnuddelsServer.getPersistence().setObject(SETTINGS, Settings);
+            }
         }
     }
 
