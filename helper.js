@@ -32,3 +32,13 @@ function canChangeStorage() {
 
     return true;
 }
+
+/** get a random int in range [0;number[ */
+function randomNextInt(number) {
+    return RandomOperations.nextInt(number);
+}
+
+/** shuffle an array */
+function randomShuffle(obj) {
+    return RandomOperations.shuffleObjects(obj);
+}

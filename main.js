@@ -1,4 +1,5 @@
 require('helper.js');
+require('texthelper.js');
 require('reward.js');
 require('dictionary.js');
 require('season.js');
@@ -203,18 +204,20 @@ var App = {};
                         }
                     }
                 }
-                LetterPool = RandomOperations.shuffleObjects(LetterPool);
+                LetterPool = randomShuffle(LetterPool);
             }
 
             letters.push(LetterPool.pop());
         }
 
+        var pos = 0;
+
         // C always appears with H or K
         if (letters.indexOf('C') != -1) {
             if (letters.indexOf('K') == -1 && letters.indexOf('H') == -1) {
-                var pos = RandomOperations.nextInt(letters.length);
+                pos = randomNextInt(letters.length);
                 var replacement = 'H';
-                if (RandomOperations.nextInt(3) == 0) {
+                if (randomNextInt(3) == 0) {
                     replacement = 'K';
                 }
                 letters.splice(pos, 1, replacement);
@@ -230,17 +233,17 @@ var App = {};
                         }
                     }
                 }
-                VowelPool = RandomOperations.shuffleObjects(VowelPool);
+                VowelPool = randomShuffle(VowelPool);
             }
 
-            var pos = RandomOperations.nextInt(letters.length);
+            pos = randomNextInt(letters.length);
             letters.splice(pos, 0, VowelPool.pop());
         }
 
         // Q only ever appears with U
         if (letters.indexOf('Q') != -1) {
             if (letters.indexOf('U') == -1) {
-                var pos = RandomOperations.nextInt(letters.length);
+                pos = randomNextInt(letters.length);
                 letters.splice(pos, 1, 'U');
             }
         }
@@ -251,18 +254,9 @@ var App = {};
         var result = ' ';
         for (var i = 0; i < letters.length; ++i) {
             var colorCode = ValueColorCodes[LetterValue[letters[i]]];
-            //result = result + letters[i] + '(' + LetterValue[letters[i]] + ') ';
-            result = result + '°r' + colorCode + '°_' + letters[i] + '_°r10[120,120,120]°' + LetterValue[letters[i]] + '°r°  ';
-        }
-        result += '°r°' + Settings.DefaultBotColor;
-        return result;
-    }
 
-    function wordToColorString(word) {
-        var result = ' ';
-        for (var i = 0; i < word.length; ++i) {
-            var colorCode = ValueColorCodes[LetterValue[word[i]]];
-            result = result + '°r' + colorCode + '°' + word[i];
+            // result = result + '°r' + colorCode + '°_' + letters[i] + '_°r10[120,120,120]°' + LetterValue[letters[i]] + '°r°  ';
+            result = result + TextHelper.get('ColoredLetters', { Color: colorCode, Letter: letters[i], Value: LetterValue[letters[i]]}, undefined);
         }
         result += '°r°' + Settings.DefaultBotColor;
         return result;
@@ -320,7 +314,7 @@ var App = {};
     /** submit a word by a user */
     function submitWord(user, params) {
         if (Round.stage != 'submit') {
-            sendPrivateMessage(user, 'In dieser Runde können gerade keine Worte eingereicht werden!');
+            sendPrivateMessage(user, TextHelper.get('SubmitWrongPhase', {}, undefined));
             return;
         }
         var userId = user.getUserId();
@@ -329,7 +323,7 @@ var App = {};
         }
 
         if (!Round.players.hasOwnProperty(userId)) {
-            sendPrivateMessage(user, 'Sorry! Um mitzuspielen musst du im Channel sein!');
+            sendPrivateMessage(user, TextHelper.get('SubmitNotInChannel', {}, undefined));
             return;
         }
 
@@ -341,20 +335,20 @@ var App = {};
         entry = entry.toUpperCase();
 
         if (entry.length == 0) {
-            sendPrivateMessage(user, 'Du musst ein Wort eingeben.°#°Du kannst diese Buchstaben verwenden:°#°' + lettersToString(Round.letters));
+            sendPrivateMessage(user, TextHelper.get('SubmitNoWord', {Letters: lettersToString(Round.letters)}, undefined));
             return;
         }
 
         var value = getWordValue(Round.letters, entry);
         if (value < 0) {
-            sendPrivateMessage(user, 'Das Wort "' + entry + '" ist mit den Buchstaben leider nicht möglich!°#°Du kannst diese Buchstaben verwenden:°#°' + lettersToString(Round.letters));
+            sendPrivateMessage(user, TextHelper.get('SubmitWordImpossible', { Entry: entry, Letters: lettersToString(Round.letters)}, undefined));
             return;
         }
 
         var acceptance = Dictionary.check(entry);
 
         if (acceptance === 'reject') {
-            sendPrivateMessage(user, 'Die Buchstabenfolge "' + entry + '" ergibt leider kein akzeptiertes Wort!');
+            sendPrivateMessage(user, TextHelper.get('SubmitWordForbidden', { Entry: entry }, undefined));
             return;
         }
 
@@ -368,7 +362,7 @@ var App = {};
 
         var extra = '';
         if (value == Round.target) {
-            extra = ' Damit wirst du Bonuspunkte für die Punktzahl bekommen!';
+            extra = TextHelper.get('SubmitWordBonusPoints', {}, undefined);
         }
 
         if (acceptance === 'vote') {
@@ -383,7 +377,7 @@ var App = {};
             } else {
                 Voting[entry] = { accept: [], reject: [], submit: [userId], original: originalWord, hasChanges: hasChanges };
             }
-            sendPrivateMessage(user, 'Dein Wort "' + entry + '" hat den Wert ' + value + ' - falls es von den anderen als gültig akzeptiert wird!' + extra);
+            sendPrivateMessage(user, TextHelper.get('SubmitWordVote', {Entry: entry, Value: value, Bonus: extra}, undefined));
         } else if (acceptance === 'accept') {
             obj.value = value;
             obj.word = entry;
@@ -391,7 +385,7 @@ var App = {};
             obj.hasChanges = hasChanges;
 
             obj.step = 'okay';
-            sendPrivateMessage(user, 'Dein Wort "' + entry + '" hat den Wert ' + value + '.' + extra);
+            sendPrivateMessage(user, TextHelper.get('SubmitWordKnown', {Entry: entry, Value: value, Bonus: extra}, undefined));
         }
     }
 
