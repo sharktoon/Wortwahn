@@ -48,6 +48,79 @@ var TextHelper = (function() {
             values: ['Entry', 'Value', 'Bonus']
         },
         // ------------------------------------------------
+        // SPELLING VOTES
+        // ------------------------------------------------
+        VoteSelf: {
+            text: 'Du hast das Wort "%Entry%" selbst eingereicht.',
+            values: ['Entry']
+        },
+        VoteAlreadyVoted: {
+            text: 'Du hast deine Stimme bereits für das Wort "%Entry%" abgegeben.',
+            values: ['Entry']
+        },
+        VoteUnknown: {
+            text: 'Über das Wort "%Entry%" wird gerade nicht abgestimmt.',
+            values: ['Entry']
+        },
+        VoteConfirmAccept: {
+            text: 'Du hast deine Stimme für das Wort "%Entry%" abgegeben: Du findest es okay.',
+            values: ['Entry']
+        },
+        VoteConfirmReject: {
+            text: 'Du hast deine Stimme für das Wort "%Entry%" abgegeben: Du findest es NICHT okay.',
+            values: ['Entry']
+        },
+        // ------------------------------------------------
+        // STAGES PUBLIC MESSAGES
+        // ------------------------------------------------
+        StageSubmitIntro: {
+            text: 'Die Buchstaben dieser Runde:°#°%Letters%°#°Worte können mit ""/x WORT"" eingereicht werden. Z. B. Echt mit /x echt°#°Bonuspunkte wenn du es schaffst genau _%Target% Punkte_ zu erreichen!',
+            values: [ 'Letters', 'Target']
+        },
+        StageSubmitAlmostDone: {
+            text: 'Nur noch %Seconds% Sekunden! Mit /x WORT kann ein Wort eingereicht werden!',
+            values: ['Seconds']
+        },
+        StageVoteListBegin: {
+            text: 'Folgende Worte wurden eingereicht:',
+            values: []
+        },
+        StageVoteListEnd: {
+            text: '°##°Deine Meinung ist gefragt! Welches Wort ist richtig? Welches ist frei erfunden?',
+            values: []
+        },
+        StageVoteListEntry: {
+            text: '°##° %WordDisplay% - _°>okay|/accept %Entry%<°_ oder _°>falsch|/reject %Entry%<°_',
+            values: ['WordDisplay', 'Entry', 'Entry']
+        },
+        // ------------------------------------------------
+        // SCORING STAGE
+        // ------------------------------------------------
+        StageScoringBegin: {
+            text: 'Die Beiträge dieser Runde:',
+            values: []
+        },
+        StageScoringNoEntries: {
+            text: "Keine Beiträge diese Runde!",
+            values: []
+        },
+        StageScoringRejectedBegin: {
+            text: '°##°"Abgelehnte Worte"',
+            values: []
+        },
+        StageScoringRejectedNoVotes: {
+            text: '°#° %Entry% : unentscheiden - Münzwurf verloren',
+            values: ['Entry']
+        },
+        StageScoringRejectedTie: {
+            text: '°#° %Entry% : unentschieden - Münzwurf verloren',
+            values: ['Entry']
+        },
+        StageScoringRejected: {
+            text: '°#° %Entry% : abgelehnt',
+            values: ['Entry']
+        },
+        // ------------------------------------------------
         // SIMPLE TEXT HELPERS
         // ------------------------------------------------
         LineBreak: {

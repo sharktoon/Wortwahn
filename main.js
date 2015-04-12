@@ -429,15 +429,15 @@ var App = {};
         if (Voting.hasOwnProperty(word)) {
             var voted = hasVoted(Voting[word], user.getUserId());
             if (voted === 'submit') {
-                sendPrivateMessage(user, 'Du hast das Wort "' + word + '" selbst eingereicht.');
+                sendPrivateMessage(user, TextHelper.get('VoteSelf', { Entry: word }, undefined));
             } else if (voted) {
-                sendPrivateMessage(user, 'Du hast deine Stimme bereits für das Wort "' + word + '" abgegeben.');
+                sendPrivateMessage(user, TextHelper.get('VoteAlreadyVoted', {Entry: word }, undefined));
             } else {
                 Voting[word].accept.push(user.getUserId());
-                sendPrivateMessage(user, 'Du hast deine Stimme für das Wort "' + word + '" abgegeben: Du findest es okay.');
+                sendPrivateMessage(user, TextHelper.get('VoteConfirmAccept', { Entry: word }, undefined));
             }
         } else {
-            sendPrivateMessage(user, 'Über das Wort "' + word + '" wird gerade nicht abgestimmt.');
+            sendPrivateMessage(user, TextHelper.get('VoteUnknown', { Entry: word }, undefined));
         }
     }
 
@@ -446,15 +446,15 @@ var App = {};
         if (Voting.hasOwnProperty(word)) {
             var voted = hasVoted(Voting[word], user.getUserId());
             if (voted === 'submit') {
-                sendPrivateMessage(user, 'Du hast das Wort "' + word + '" selbst eingereicht.');
+                sendPrivateMessage(user, TextHelper.get('VoteSelf', { Entry: word }, undefined));
             } else if (voted) {
-                sendPrivateMessage(user, 'Du hast deine Stimme bereits für das Wort "' + word + '" abgegeben.');
+                sendPrivateMessage(user, TextHelper.get('VoteAlreadyVoted', { Entry: word }, undefined));
             } else {
                 Voting[word].reject.push(user.getUserId());
-                sendPrivateMessage(user, 'Du hast deine Stimme für das Wort "' + word + '" abgegeben: Du findest es NICHT okay.');
+                sendPrivateMessage(user, TextHelper.get('VoteConfirmReject', { Entry: word }, undefined));
             }
         } else {
-            sendPrivateMessage(user, 'Über das Wort "' + word + '" wird gerade nicht abgestimmt.');
+            sendPrivateMessage(user, TextHelper.get('VoteUnknown', { Entry: word }, undefined));
         }
     }
 
@@ -462,7 +462,7 @@ var App = {};
     function beginSubmit() {
         var dice = 0;
         for (var die = 0; die < Settings.TargetDice.length; ++die) {
-            dice += 1 + RandomOperations.nextInt(Settings.TargetDice[die]);
+            dice += 1 + randomNextInt(Settings.TargetDice[die]);
         }
 
         Round.target = dice;
@@ -470,7 +470,7 @@ var App = {};
         Round.letters = [];
         refillLetters(Round.letters);
 
-        sendPublicMessage('Die Buchstaben dieser Runde:°#°' + lettersToString(Round.letters) + '°#°Worte können mit ""/x WORT"" eingereicht werden. Z. B. Echt mit /x echt°#°Bonuspunkte wenn du es schaffst genau _' + Round.target + ' Punkte_ zu erreichen!');
+        sendPublicMessage(TextHelper.get('StageSubmitIntro', { Letters: lettersToString(Round.letters), Target: Round.target }, undefined));
 
         function endSubmit() {
             if (Round.stage == 'submit') {
@@ -491,7 +491,7 @@ var App = {};
 
         setTimeout(function() {
             if (Round.stage == 'submit') {
-                sendPublicMessage('Nur noch ' + Settings.Timer.submitFinal / 1000  + ' Sekunden! Mit /x WORT kann ein Wort eingereicht werden!');
+                sendPublicMessage(TextHelper.get('StageSubmitAlmostDone', {Seconds: Settings.Timer.submitFinal / 1000}, undefined));
                 setTimeout(endSubmit, Settings.Timer.submitFinal);
             }
         }, Settings.Timer.submit);
@@ -499,7 +499,7 @@ var App = {};
 
     /** starts voting phase - every player gets the vote links */
     function beginVoting() {
-        var text = 'Folgende Worte wurden eingereicht:';
+        var text = TextHelper.get('StageVoteListBegin', {}, undefined);
         Round.stage = 'vote';
 
         for (var entry in Voting) {
@@ -509,11 +509,12 @@ var App = {};
                 if (Voting[entry].hasChanges) {
                     wordText += ' (' + entry + ')';
                 }
-                text += '°##° ' + wordText + ' - _°>okay|/accept ' + entry + '<°_ oder _°>falsch|/reject ' + entry + '<°_';
+                // text += '°##° ' + wordText + ' - _°>okay|/accept ' + entry + '<°_ oder _°>falsch|/reject ' + entry + '<°_';
+                text += TextHelper.get('StageVoteListEntry', { WordDisplay: wordText, Entry: entry }, undefined);
             }
         }
 
-        text += '°##°Deine Meinung ist gefragt! Welches Wort ist richtig? Welches ist frei erfunden?';
+        text += TextHelper.get('StageVoteListEnd', {}, undefined);
 
         sendPublicMessage(text);
 
@@ -532,9 +533,9 @@ var App = {};
         var sortedWords = [];
         var rejectedWords = [];
 
-        var text = 'Die Beiträge dieser Runde:';
+        var text = TextHelper.get('StageScoringBegin', {}, undefined);
 
-        var allowedFreePass = Settings.LetterCount + Settings.VowelCount - 1 - RandomOperations.nextInt(4);
+        var allowedFreePass = Settings.LetterCount + Settings.VowelCount - 1 - randomNextInt(4);
 
         for (var word in Voting) {
             if (Voting.hasOwnProperty(word)) {
@@ -686,19 +687,20 @@ var App = {};
 
         var rejectText = '';
         if (rejectedWords.length > 0 && Settings.DisplayRejectedWords) {
-            rejectText = '°##°"Abgelehnte Worte"';
+            rejectText = TextHelper.get('StageScoringRejectedBegin', {}, undefined);
             for (var i = 0; i < rejectedWords.length; ++i) {
                 var word = rejectedWords[i];
                 if (Voting.hasOwnProperty(word)) {
                     var entry = Voting[word];
-                    rejectText += '°#° ' + entry.original + ' : ';
+                    var blueprint = 'StageScoringRejected';
                     if (entry.accept.length == 0 && entry.reject.length == 0) {
-                        rejectText += 'unentscheiden - Münzwurf verloren';
+                        blueprint = 'StageScoringRejectedNoVotes';
                     } else if (entry.result == 'tie-reject') {
-                        rejectText += 'unentschieden - Münzwurf verloren'
+                        blueprint = 'StageScoringRejectedTie';
                     } else if (entry.result == 'reject') {
-                        rejectText += 'abgelehnt';
+                        blueprint = 'StageScoringRejected';
                     }
+                    rejectText += TextHelper.get(blueprint, { Entry: entry.original }, undefined);
                 }
             }
         }
@@ -713,7 +715,7 @@ var App = {};
         if (totalWinners > 0) {
             sendPublicMessage(text + rejectText);
         } else {
-            sendPublicMessage("Keine Beiträge diese Runde!" + rejectText);
+            sendPublicMessage(TextHelper.get('StageScoringNoEntries', {}, undefined) + rejectText);
         }
 
         setTimeout(function() {
