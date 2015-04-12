@@ -93,6 +93,45 @@ var TextHelper = (function() {
             text: '°##° %WordDisplay% - _°>okay|/accept %Entry%<°_ oder _°>falsch|/reject %Entry%<°_',
             values: ['WordDisplay', 'Entry', 'Entry']
         },
+        StageBetweenRounds: {
+            text: 'Runde vorbei! Nächste Runde startet gleich! Ihr könnt jederzeit den °>Hutladen|/Hutladen<° besuchen!',
+            values: []
+        },
+        // ------------------------------------------------
+        // EXTRA ROUNDS
+        // ------------------------------------------------
+        ExtraRoundBetweenRoundsBegin: {
+            text: 'Runde vorbei! Nächste Runde startet gleich!',
+            values: []
+        },
+        ExtraRoundStartingText: {
+            text: 'Runde vorbei!°##°Es startet eine _Extra Runde_!°#°Die nächsten %Duration% Runden werden zusammengezählt! Wer am meisten Punkte sammelt bekommt einen Bonus!°#°Ran an die Tasten!',
+            values: [ 'Duration' ]
+        },
+        ExtraRoundBoardBegin: {
+            text: ' Gerade läuft eine _Extra Runde_! °#°Zwischenstand Runde %Turn% von %Duration%',
+            values: ['Turn', 'Duration']
+        },
+        ExtraRoundBoardEntry: {
+            text: '°#° %Rank%. %User%     %Points%',
+            values: [ 'Rank', 'User', 'Points' ]
+        },
+        ExtraRoundScoresBegin: {
+            text: '°##°_Extra Runde Rangliste_',
+            values: []
+        },
+        ExtraRoundScoresEntry: {
+            text: '°#° %Rank%. %User%     %Points% => +%Reward% P',
+            values: [ 'Rank', 'User', 'Points', 'Reward' ]
+        },
+        ExtraRoundScoresEnd: {
+            text: '°##°Glückwunsch an alle Gewinner!',
+            values: []
+        },
+        ExtraRoundRewardHat: {
+            text: 'Für deine Platzierung in der Extra Runde hast du diesen Hut gewonnen!',
+            values: []
+        },
         // ------------------------------------------------
         // SCORING STAGE
         // ------------------------------------------------

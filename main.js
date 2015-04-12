@@ -887,7 +887,7 @@ var App = {};
 
         if (ExtraInstance.Active) {
             var hatWinners = [];
-            var text = 'Runde vorbei! Nächste Runde startet gleich!';
+            var text = TextHelper.get('ExtraRoundBetweenRoundsBegin', {}, undefined);
 
             var sortedPlayers = [];
             for (var userId in ExtraInstance.Players) {
@@ -906,9 +906,8 @@ var App = {};
 
             var remainingRounds = Settings.ExtraRound.Duration - ExtraInstance.Turns;
             if (remainingRounds > 0) {
-                text += ' Gerade läuft eine _Extra Runde_!';
+                text += TextHelper.get('ExtraRoundBoardBegin', { Turn:ExtraInstance.Turns, Duration:Settings.ExtraRound.Duration}, undefined);
 
-                text += '°#°Zwischenstand Runde ' + ExtraInstance.Turns + ' von ' + Settings.ExtraRound.Duration;
                 var rank = 0;
                 var lastPoints = 10000000000;
                 for (var i = 0; i < sortedPlayers.length; ++i) {
@@ -919,13 +918,13 @@ var App = {};
                         rank = i + 1;
                         lastPoints = player.Points;
                     }
-                    text += '°#° ' + rank + '. ' + Reward.showUser(user) + '     ' + player.Points;
+                    text += TextHelper.get('ExtraRoundBoardEntry', {Rank: rank, User: Reward.showUser(user), Points: player.Points }, undefined);
                 }
             } else {
                 ExtraInstance.Active = false;
                 ExtraInstance.RoundsToStart = 0;
 
-                text += '°##°_Extra Runde Rangliste_';
+                text += TextHelper.get('ExtraRoundScoresBegin', {}, undefined);
                 var rank = 0;
                 var lastPoints = 10000000000;
                 for (var i = 0; i < sortedPlayers.length; ++i) {
@@ -942,7 +941,7 @@ var App = {};
                         bonusPoints = Settings.ExtraRound.Reward['' + rank];
                     }
 
-                    text += '°#° ' + rank + '. ' + Reward.showUser(user) + '     ' + player.Points + ' => +' + bonusPoints + ' P';
+                    text += TextHelper.get('ExtraRoundScoresEntry', { Rank: rank, User: Reward.showUser(user), Points: player.Points, Reward: bonusPoints}, undefined);
                     Reward.awardPoints(user, bonusPoints);
 
                     if (rank <= 3) {
@@ -950,7 +949,7 @@ var App = {};
                         // Reward.awardHat(user, '&03', 'Für deine Platzierung in der Extra Runde hast du diesen Hut gewonnen!');
                     }
                 }
-                text += '°##°Glückwunsch an alle Gewinner!';
+                text += TextHelper.get('ExtraRoundScoresEnd', {}, undefined);
             }
 
             sendPublicMessage(text);
@@ -958,7 +957,7 @@ var App = {};
             for (var i = 0; i < hatWinners.length; ++i) {
                 userId = hatWinners[i];
                 var user = KnuddelsServer.getUser(userId);
-                Reward.awardHat(user, '&03', 'Für deine Platzierung in der Extra Runde hast du diesen Hut gewonnen!');
+                Reward.awardHat(user, '&03', TextHelper.get('ExtraRoundRewardHat', {}, undefined));
             }
         } else if (CrazyInstance.State != 'none') {
             crazyEndOfRound();
@@ -966,9 +965,9 @@ var App = {};
             ExtraInstance.Active = true;
             ExtraInstance.Turns = 0;
             ExtraInstance.Players = {};
-            sendPublicMessage('Runde vorbei!°##°Es startet eine _Extra Runde_!°#°Die nächsten ' + Settings.ExtraRound.Duration + ' Runden werden zusammengezählt! Wer am meisten Punkte sammelt bekommt einen Bonus!°#°Ran an die Tasten!');
+            sendPublicMessage(TextHelper.get('ExtraRoundStartingText', {Duration: Settings.ExtraRound.Duration }, undefined));
         } else {
-            sendPublicMessage('Runde vorbei! Nächste Runde startet gleich! Ihr könnt jederzeit den °>Hutladen|/Hutladen<° besuchen!');
+            sendPublicMessage(TextHelper.get('StageBetweenRounds', {}, undefined));
         }
 
         setTimeout(function() {
