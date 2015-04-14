@@ -796,7 +796,7 @@ var App = {};
 
         var randomNumber = [];
         for (var kCount = 0; kCount < Payout.knuddel; ++kCount) {
-            randomNumber.push(RandomOperations.nextInt(points));
+            randomNumber.push({number: RandomOperations.nextInt(points), paid: false });
         }
 
         for (var userId in CrazyInstance.Players) {
@@ -809,13 +809,15 @@ var App = {};
                 }
 
                 if (Settings.UseKnuddel) {
-                    var payKnuddel = false;
+                    var payKnuddel = true;
                     for (var kCount = 0; kCount < randomNumber.length; ++kCount) {
-                        randomNumber[kCount] -= CrazyInstance.Players[userId].Points;
-                        if (randomNumber[kCount] < 0 && !payKnuddel) {
-                            randomNumber.slice(kCount, 1);
-                            payKnuddel = true;
-                            KnuddelsServer.getDefaultBotUser().transferKnuddel(user, 1, { displayReasonText: 'Los-Gewinner aus der Verrückten Runde!'});
+                        randomNumber[kCount].number -= CrazyInstance.Players[userId].Points;
+                        if (randomNumber[kCount].number < 0 && payKnuddel && randomNumber[kCount].paid == false) {
+                            randomNumber[kCount].paid = true;
+                            payKnuddel = false;
+                            if (KnuddelsServer.getDefaultBotUser().getKnuddelAmount().asNumber() >= MIN_KNUDDEL) {
+                                KnuddelsServer.getDefaultBotUser().transferKnuddel(user, 1, {displayReasonText: 'Los-Gewinn aus der Verrückten Runde!'});
+                            }
                         }
                     }
                 }
