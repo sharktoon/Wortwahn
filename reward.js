@@ -16,6 +16,9 @@ var Reward = {};
 
     // convenience function, will show the picture of the user in front of the name
     function showUser(user) {
+        if (!user) {
+            return 'UNBEKANNT';
+        }
         var icon = "";
         if (user.getPersistence().hasString(WORN_HAT)) {
             var hatId = user.getPersistence().getString(WORN_HAT);
