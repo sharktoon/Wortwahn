@@ -340,6 +340,10 @@ var App = {};
 
         if (ActivePlayers.hasOwnProperty(userId)) {
             ActivePlayers[userId].useP = command == 'private-message';
+        } else {
+            ActivePlayers[userId] = {
+                useP: command == 'private-message'
+            };
         }
 
         if (!Round.players.hasOwnProperty(userId)) {
@@ -1206,18 +1210,21 @@ var App = {};
             showMcmCommands(user);
         }
 
-        var text = 'Willkommen! Einige Befehle werden erklärt, wenn du °>/regeln|/regeln<° eingibst.';
+        var blueprint = 'GreetingNormal';
+        var replacements = {};
         if (Round.stage == 'submit') {
-            text += '°##°Folgende Buchstaben sind gerade verfügbar:°#°' + lettersToString(Round.letters) + '°#°Mit /x WORT kannst du noch schnell ein Wort einreichen. Alternativ auch als /p an mich!';
+            blueprint = 'GreetingSubmitStage';
+            replacements = { Letters: lettersToString(Round.letters), Target: Round.target };
         }
+        var text = TextHelper.get(blueprint, replacements, undefined);
 
         sendPrivateMessage(user, text);
 
         var AWARD_M = 'NPM', AWARD_F = 'NPF';
         if (user.getGender() == Gender.Female) {
-            Reward.awardHat(user, AWARD_F, 'Als kleines Begrüßungsgeschenk bekommst du direkt deinen ersten Hut!');
+            Reward.awardHat(user, AWARD_F, TextHelper.get('GreetingHat', {}, undefined));
         } else {
-            Reward.awardHat(user, AWARD_M, 'Als kleines Begrüßungsgeschenk bekommst du direkt deinen ersten Hut!');
+            Reward.awardHat(user, AWARD_M, TextHelper.get('GreetingHat', {}, undefined));
         }
 
         ActivePlayers[user.getUserId()] = {

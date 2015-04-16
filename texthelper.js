@@ -164,6 +164,21 @@ var TextHelper = (function() {
             values: ['Entry']
         },
         // ------------------------------------------------
+        // GREETING TEXTS
+        // ------------------------------------------------
+        GreetingNormal: {
+            text: 'Willkommen! Einige Befehle werden erklärt, wenn du °>/regeln|/regeln<° eingibst.',
+            values: []
+        },
+        GreetingSubmitStage: {
+            text: 'Willkommen! Einige Befehle werden erklärt, wenn du °>/regeln|/regeln<° eingibst.°##°Folgende Buchstaben sind gerade verfügbar:°#°%Letters%°#°Bonuspunkte wenn du es schaffst _%Target% Punkte_ zu erreichen.°#°Mit /x WORT kannst du noch schnell ein Wort einreichen. Alternativ auch als /p an mich!',
+            values: [ 'Letters', 'Target']
+        },
+        GreetingHat: {
+            text: 'Als kleines Begrüßungsgeschenk bekommst du direkt deinen ersten Hut!',
+            values: []
+        },
+        // ------------------------------------------------
         // SIMPLE TEXT HELPERS
         // ------------------------------------------------
         LineBreak: {
