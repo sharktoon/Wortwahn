@@ -77,6 +77,10 @@ var TextHelper = (function() {
             text: 'Die Buchstaben dieser Runde:°#°%Letters%°#°Worte können mit ""/x WORT"" eingereicht werden. Z. B. Echt mit /x echt°#°Bonuspunkte wenn du es schaffst genau _%Target% Punkte_ zu erreichen!',
             values: [ 'Letters', 'Target']
         },
+        StageSubmitIntroShort: {
+            text: 'Bonus: _%Target% Punkte_°#°%Letters%',
+            values: [ 'Letters', 'Target']
+        },
         StageSubmitAlmostDone: {
             text: 'Nur noch %Seconds% Sekunden! Mit /x WORT kann ein Wort eingereicht werden!',
             values: ['Seconds']

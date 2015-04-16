@@ -158,7 +158,8 @@ var Settings = {
         id: '2015-02',
         name: 'Februar'
     },
-    TargetDice: [8, 8],
+    TargetDice: [6, 6, 5],
+    AllowPMode: true,
 
     DefaultBotColor: '°GG°'
 };
@@ -187,6 +188,21 @@ var App = {};
     };
     var LetterPool = [];
     var VowelPool = [];
+
+    /** list of active players - userId: { useP: true/false } */
+    var ActivePlayers = {
+    };
+
+    /** sends to all interested players */
+    function sendToInterestedPlayers(message) {
+        if (Settings.AllowPMode) {
+            Object.keys(ActivePlayers).forEach(function(userId) {
+                if (ActivePlayers[userId].useP) {
+                    sendPrivateMessage(KnuddelsServer.getUser(userId), message);
+                }
+            });
+        }
+    }
 
     /** minimum of knuddel the bot needs to own before sharing them */
     var MIN_KNUDDEL = 5;
@@ -312,7 +328,7 @@ var App = {};
     }
 
     /** submit a word by a user */
-    function submitWord(user, params) {
+    function submitWord(user, params, command) {
         if (Round.stage != 'submit') {
             sendPrivateMessage(user, TextHelper.get('SubmitWrongPhase', {}, undefined));
             return;
@@ -320,6 +336,10 @@ var App = {};
         var userId = user.getUserId();
         if (!Round.players.hasOwnProperty(userId)) {
             startPlayer(userId);
+        }
+
+        if (ActivePlayers.hasOwnProperty(userId)) {
+            ActivePlayers[userId].useP = command == 'private-message';
         }
 
         if (!Round.players.hasOwnProperty(userId)) {
@@ -471,6 +491,7 @@ var App = {};
         refillLetters(Round.letters);
 
         sendPublicMessage(TextHelper.get('StageSubmitIntro', { Letters: lettersToString(Round.letters), Target: Round.target }, undefined));
+        sendToInterestedPlayers(TextHelper.get('StageSubmitIntroShort', { Letters: lettersToString(Round.letters), Target: Round.target }, undefined));
 
         function endSubmit() {
             if (Round.stage == 'submit') {
@@ -491,7 +512,9 @@ var App = {};
 
         setTimeout(function() {
             if (Round.stage == 'submit') {
-                sendPublicMessage(TextHelper.get('StageSubmitAlmostDone', {Seconds: Settings.Timer.submitFinal / 1000}, undefined));
+                var warningMessage = TextHelper.get('StageSubmitAlmostDone', {Seconds: Settings.Timer.submitFinal / 1000}, undefined);
+                sendPublicMessage(warningMessage);
+                sendToInterestedPlayers(warningMessage);
                 setTimeout(endSubmit, Settings.Timer.submitFinal);
             }
         }, Settings.Timer.submit);
@@ -517,6 +540,7 @@ var App = {};
         text += TextHelper.get('StageVoteListEnd', {}, undefined);
 
         sendPublicMessage(text);
+        sendToInterestedPlayers(text);
 
         setTimeout(function() {
             if (Round.stage == 'vote') {
@@ -714,8 +738,10 @@ var App = {};
         }
         if (totalWinners > 0) {
             sendPublicMessage(text + rejectText);
+            sendToInterestedPlayers(text);
         } else {
             sendPublicMessage(TextHelper.get('StageScoringNoEntries', {}, undefined) + rejectText);
+            sendToInterestedPlayers(TextHelper.get('StageScoringNoEntries', {}, undefined));
         }
 
         setTimeout(function() {
@@ -1171,9 +1197,10 @@ var App = {};
     };
 
     App.onPrivateMessage = function(privateMessage) {
-        submitWord(privateMessage.getAuthor(), privateMessage.getText(), 'p');
+        submitWord(privateMessage.getAuthor(), privateMessage.getText(), 'private-message');
     };
 
+    /** user just joined the channel */
     App.onUserJoined = function(user) {
         if (hasModRights(user)) {
             showMcmCommands(user);
@@ -1192,6 +1219,15 @@ var App = {};
         } else {
             Reward.awardHat(user, AWARD_M, 'Als kleines Begrüßungsgeschenk bekommst du direkt deinen ersten Hut!');
         }
+
+        ActivePlayers[user.getUserId()] = {
+            useP: false
+        };
+    };
+
+    /** user leaves the channel */
+    App.onUserLeft = function(user) {
+        delete ActivePlayers[user.getUserId()];
     };
 
     var SETTINGS = '_SETTINGS_';
