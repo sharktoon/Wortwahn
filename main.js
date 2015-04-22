@@ -1200,6 +1200,7 @@ var App = {};
         teach: Dictionary.teach,
         forget: Dictionary.forget,
         hideword: Dictionary.hide,
+        inspect: Dictionary.inspect,
         showallwords: Dictionary.showAllKnownWords,
         showuseraccept: Dictionary.showUserList
     };

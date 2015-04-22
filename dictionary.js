@@ -254,6 +254,16 @@ var Dictionary = {};
         }
     }
 
+    function inspect(user, word) {
+        if (hasModRights(user)) {
+            word = word.trim().toUpperCase();
+
+            sendPrivateInfoMessage(user, ' ' + word + ': ' + JSON.stringify(WordBase[word]));
+        } else {
+            sendPrivateMessage(user, 'Das klappt so nicht.');
+        }
+    }
+
     Dictionary = {
         store: store,
         load: load,
@@ -266,6 +276,7 @@ var Dictionary = {};
         teach: teach,
         forget: forget,
         hide: hide,
+        inspect: inspect,
         forbid: forbid
     }
 })();
