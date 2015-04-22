@@ -1199,6 +1199,7 @@ var App = {};
 
         teach: Dictionary.teach,
         forget: Dictionary.forget,
+        hideword: Dictionary.hide,
         showallwords: Dictionary.showAllKnownWords,
         showuseraccept: Dictionary.showUserList
     };

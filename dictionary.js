@@ -152,7 +152,7 @@ var Dictionary = {};
             for (var word in WordBase) {
                 if (WordBase.hasOwnProperty(word)) {
                     if (started) {
-                        if (WordBase[word].hasOwnProperty('votes')) {
+                        if (WordBase[word].hasOwnProperty('votes') && !WordBase[word].hidden) {
                             wordList.push(word);
                             if (wordList.length >= OUTPUT_LENGTH) {
                                 lastTeachWord = word;
@@ -170,7 +170,7 @@ var Dictionary = {};
 
             var message = 'Gesehene Worte:';
             for (var i = 0; i < wordList.length; ++i) {
-                message += '°##° '+wordList[i]+': { votes: ' + WordBase[wordList[i]].votes + '} °>/teach|/teach '+wordList[i]+'<°';
+                message += '°##° '+wordList[i]+': { votes: ' + WordBase[wordList[i]].votes + '} °>/teach|/teach '+wordList[i]+'<°     °>/hideword|/hideword '+wordList[i]+'<°';
             }
             message += '°##°weiter mit °>>>/teach|/teach<°';
             sendPrivateMessage(user, message);
@@ -214,6 +214,20 @@ var Dictionary = {};
         }
     }
 
+    function hide(user, word) {
+        if (hasModRights(user)) {
+            Tracker.log(user, 'hide-word', word);
+            word = word.trim().toUpperCase();
+
+            if (WordBase.hasOwnProperty(word) && WordBase[word].hasOwnProperty('votes')) {
+                WordBase[word].hidden = true;
+            }
+            sendPrivateMessage(user, 'Das Wort "' + word + '" ist aus der Liste gestrichen worden.');
+        } else {
+            sendPrivateMessage(user, 'Das klappt so nicht.');
+        }
+    }
+
     function forget(user, word) {
         if (user.isChannelOwner()) {
             Tracker.log(user, 'forget', word);
@@ -251,6 +265,7 @@ var Dictionary = {};
         userAccept: userAccept,
         teach: teach,
         forget: forget,
+        hide: hide,
         forbid: forbid
     }
 })();
