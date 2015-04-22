@@ -14,6 +14,12 @@ function sendPrivateMessage(user, message) {
     user.sendPrivateMessage(Settings.DefaultBotColor + message);
 }
 
+/** convenience - reduces number of warnings in the file */
+function sendPrivateInfoMessage(user, message) {
+    var text = message.replace(/"/gi, '');
+    user.sendPrivateMessage(text);
+}
+
 /** check if a user has moderator rights, or is channel owner */
 function hasModRights(user) {
     return user.isChannelModerator() || user.isChannelOwner();

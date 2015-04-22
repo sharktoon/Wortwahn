@@ -48,7 +48,7 @@ var Dictionary = {};
 
         for (var word in WordBase) {
             if (dataCount > 1000) {
-                sendPrivateMessage(user, JSON.stringify(wordList));
+                sendPrivateInfoMessage(user, JSON.stringify(wordList));
 
                 metaCount += wordList.length;
                 wordList = [];
@@ -62,9 +62,9 @@ var Dictionary = {};
             }
         }
 
-        sendPrivateMessage(user, JSON.stringify(wordList));
+        sendPrivateInfoMessage(user, JSON.stringify(wordList));
         metaCount += wordList.length;
-        sendPrivateMessage(user, "Gesamtzahl Worte: " + metaCount);
+        sendPrivateInfoMessage(user, "Gesamtzahl Worte: " + metaCount);
     }
 
     var STORAGE = "_STORAGE_";
@@ -197,6 +197,7 @@ var Dictionary = {};
                 return;
             }
 
+            Tracker.log(user, 'teach', word);
             WordBase[word] = { okay: true };
             sendPrivateMessage(user, 'Das Wort "' + word + '" ist jetzt in der Liste der bekannten Worte.');
 
@@ -215,6 +216,7 @@ var Dictionary = {};
 
     function forget(user, word) {
         if (user.isChannelOwner()) {
+            Tracker.log(user, 'forget', word);
             word = word.trim().toUpperCase();
             delete WordBase[word];
 

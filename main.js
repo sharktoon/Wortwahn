@@ -1,5 +1,6 @@
 require('helper.js');
 require('texthelper.js');
+require('tracker.js');
 require('reward.js');
 require('dictionary.js');
 require('season.js');
@@ -898,6 +899,7 @@ var App = {};
                 CrazyInstance.Turns = 0;
             }
             sendPrivateMessage(user, 'Verrückte Runde wird gleich gestartet!');
+            Tracker.log(user, 'start-crazy', '');
         }
     }
 
@@ -1076,7 +1078,7 @@ var App = {};
             for (var piece in newSettings) {
                 if (SettingsBlueprint.hasOwnProperty(piece)) {
                     Settings[piece] = newSettings[piece];
-                    sendPrivateMessage(user, 'Changed Settings.' + piece + ' to ' + Settings[piece]);
+                    sendPrivateInfoMessage(user, 'Changed Settings.' + piece + ' to ' + Settings[piece]);
                 }
             }
 
@@ -1090,13 +1092,13 @@ var App = {};
         if (user.isChannelOwner()) {
             param = param.trim();
             if (Settings.hasOwnProperty(param)) {
-                sendPrivateMessage(user, 'Current Settings.' + param + ': ' + Settings[param]);
+                sendPrivateInfoMessage(user, 'Current Settings.' + param + ': ' + Settings[param]);
             } else {
-                sendPrivateMessage(user, 'Current Settings: ' + Settings);
+                sendPrivateInfoMessage(user, 'Current Settings: ' + Settings);
             }
 
             if (user.isChannelOwner()) {
-                sendPrivateMessage(user, '' + ChangeSettingsLog);
+                sendPrivateInfoMessage(user, '' + ChangeSettingsLog);
             }
         }
     }
@@ -1146,6 +1148,7 @@ var App = {};
     }
 
     App.chatCommands = {
+        reveallog: Tracker.show,
         settings: changeSettings,
         settingsView: viewSettings,
         stimmencheck: revealVoting,

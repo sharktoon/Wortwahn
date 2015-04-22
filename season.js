@@ -27,6 +27,7 @@ var Season = (function() {
 
 
     function checkNextSeason(user) {
+        Tracker.log(user, 'season-check', '');
         if (hasModRights(user)) {
             var text = "Nächste Saison: '" + SeasonChange.NextSeason.name + "' - alte Saison: '" + Settings.Season.name + "', '" + Settings.LastSeason.name + "'";
             text += "°#°id: '" + SeasonChange.NextSeason.id + "' - alte Saison: '" + Settings.Season.id + "', '" + Settings.LastSeason.id + "'";
@@ -60,6 +61,7 @@ var Season = (function() {
 
     function advanceSeason(user, param) {
         // is mod user? and has correct key?
+        Tracker.log(user, 'season-commit', param);
         if (hasModRights(user) && param.trim() == nextSeasonKey) {
             changeKey();
 
