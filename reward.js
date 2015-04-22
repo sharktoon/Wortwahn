@@ -77,6 +77,9 @@ var Reward = {};
     function awardPoints(user, points) {
         user.getPersistence().addNumber(Settings.Season.id, points);
         user.getPersistence().addNumber(CREDITS, points);
+
+        var totalPoints = user.getPersistence().getNumber(Settings.Season.id, points);
+        user.solvedQuest('userGotPoints', totalPoints);
     }
 
     function showScoresForSeason(user, season) {
