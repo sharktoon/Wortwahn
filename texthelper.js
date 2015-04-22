@@ -179,6 +179,25 @@ var TextHelper = (function() {
             values: []
         },
         // ------------------------------------------------
+        // MOD TEXT HELPERS
+        // ------------------------------------------------
+        BlacklistUserNotFound: {
+            text: 'Der Spieler %Nick% existiert nicht!?',
+            values: [ 'Nick' ]
+        },
+        BlacklistUserAdded: {
+            text: 'Der Spieler %Nick% darf _nicht abstimmen_.',
+            values: [ 'Nick' ]
+        },
+        BlacklistUserRemoved: {
+            text: 'Der Spieler %Nick% darf _abstimmen_.',
+            values: [ 'Nick' ]
+        },
+        ModRightsMissing: {
+            text: 'Das klappt so nicht.',
+            values: []
+        },
+        // ------------------------------------------------
         // SIMPLE TEXT HELPERS
         // ------------------------------------------------
         LineBreak: {
