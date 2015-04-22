@@ -23,7 +23,7 @@ var Tracker = (function() {
         var shortLog = [];
         var filter = param.trim();
 
-        for (var i = 0; MyLog.length; ++i) {
+        for (var i = 0; i < MyLog.length; ++i) {
             var entry = MyLog[i];
             if ('*' === filter || entry.key === filter) {
                 shortLog.push(entry);
