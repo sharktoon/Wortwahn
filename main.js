@@ -438,6 +438,22 @@ var App = {};
         }
     }
 
+    /** catch-all function for blacklist command */
+    function blacklistFunction(modUser, param) {
+        if (hasModRights(modUser)) {
+            param = param.trim();
+            if (param === '') {
+                blacklistShow(modUser, param);
+            } else if (param[0] == '!') {
+                blacklistUndo(modUser, param.substr(1));
+            } else {
+                blacklistVoter(modUser, param);
+            }
+        } else {
+            sendPrivateMessage(modUser, TextHelper.get('ModRightsMissing', {}, undefined));
+        }
+    }
+
     /** puts a user on the vote blacklist */
     function blacklistVoter(modUser, param) {
         if (hasModRights(modUser)) {
@@ -445,7 +461,7 @@ var App = {};
                 sendPrivateMessage(modUser, TextHelper.get('BlacklistUserNotFound', {Nick: param}, undefined));
                 return;
             }
-            Tracker.log(modUser, 'blacklist', param);
+            Tracker.log(modUser, 'blacklist-add', param);
 
             var userId = KnuddelsServer.getUserId(param);
             if (VoteBlacklist.indexOf(userId) == -1) {
@@ -479,7 +495,7 @@ var App = {};
                 sendPrivateMessage(modUser, TextHelper.get('BlacklistUserNotFound', {Nick: param}, undefined));
                 return;
             }
-            Tracker.log(modUser, 'blacklist-undo', param);
+            Tracker.log(modUser, 'blacklist-remove', param);
             var userId = KnuddelsServer.getUserId(param);
             var index = VoteBlacklist.indexOf(userId);
             if (index != -1) {
@@ -1228,9 +1244,7 @@ var App = {};
         '-': rejectSpelling,
         falsch: rejectSpelling,
 
-        blacklist: blacklistVoter,
-        blacklistUndo: blacklistUndo,
-        blacklistShow: blacklistShow,
+        blacklist: blacklistFunction,
 
         // next: advanceStep,
         weiter: advanceStep,
