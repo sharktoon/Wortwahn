@@ -1120,10 +1120,11 @@ var App = {};
         if (hasModRights(user)) {
             var mcmText = 'Hallo Chef!';
             mcmText += '°#°Folgende zusätliche Befehle stehen dir als Moderator zur Verfügung:';
-            mcmText += '°#°°>/teach|/teach<° - Worte anschauen, und in die Datenbank übernehmen';
             mcmText += '°#°°>/stimmen|/stimmen<° - zeigt die Abstimmung der jeweils letzten Runde';
+            mcmText += '°#°/blacklist NICK - entzieht NICK das Stimmrecht';
+            mcmText += '°#°°>/teach|/teach<° - Worte anschauen, und in die Datenbank übernehmen';
             mcmText += '°#°°>/startcrazy|/startcrazy<° - eine Verrückte Runde (Koop) starten';
-            mcmText += '°#°Mit beidem bitte nicht übertreiben! Und bei /teach bitte immer mit duden.de gegenchecken!';
+            mcmText += '°#°Bitte nicht übertreiben! Und bei /teach bitte immer mit duden.de gegenchecken!';
 
             sendPrivateMessage(user, mcmText);
         }
