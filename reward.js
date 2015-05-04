@@ -23,7 +23,7 @@ var Reward = {};
         if (user.getPersistence().hasString(WORN_HAT)) {
             var hatId = user.getPersistence().getString(WORN_HAT);
             if (hatId && Hats.hasOwnProperty(hatId)) {
-                icon = "°>" + KnuddelsServer.getFullSystemImagePath(Hats[hatId].image) + "<° ";
+                icon = "°>" + getImagePath(Hats[hatId].image) + "<° ";
             }
         }
         var nick = user.getProfileLink();
@@ -165,7 +165,7 @@ var Reward = {};
                 } else if (hat.price > 0) {
                     extra = " (" + formatBigNumber(hat.price) + " P)";
                 }
-                message += BR + "- °>" + KnuddelsServer.getFullSystemImagePath(hat.image) + "<° °>>>auswählen|/hatshop " + hat.id + "<°";
+                message += BR + "- °>" + getImagePath(hat.image) + "<° °>>>auswählen|/hatshop " + hat.id + "<°";
                 message += extra;
             }
         }
@@ -177,7 +177,7 @@ var Reward = {};
         var owned = user.getPersistence().hasObject(OWNED_HATS) && user.getPersistence().getObject(OWNED_HATS).indexOf(param) != -1;
 
         var hat = Hats[param];
-        var message = "Hutladen - Symbol °>" + KnuddelsServer.getFullSystemImagePath(hat.image) + "<°";
+        var message = "Hutladen - Symbol °>" + getImagePath(hat.image) + "<°";
         message += BR + hat.description;
         if (owned) {
             message += BR + "°>>>verwenden|/equiphat " + hat.id + "<°";
@@ -208,7 +208,7 @@ var Reward = {};
             user.getPersistence().setString(WORN_HAT, param);
         }
 
-        var message = "Du trägst nun °>" + KnuddelsServer.getFullSystemImagePath(hat.image) + "<°.";
+        var message = "Du trägst nun °>" + getImagePath(hat.image) + "<°.";
         message += BR + "Damit siehst du richtig gut aus!";
 
         sendPrivateMessage(user, message);
@@ -233,7 +233,7 @@ var Reward = {};
         if (specialText) {
             message = specialText + BR;
         }
-        message += "Der Hut °>" + KnuddelsServer.getFullSystemImagePath(hat.image) + "<° gehört nun dir!";
+        message += "Der Hut °>" + getImagePath(hat.image) + "<° gehört nun dir!";
         message += " Du kannst ihn direkt _°>>>verwenden|/equiphat " + hat.id + "<°_";
 
         if (user.isOnline()) {
@@ -262,7 +262,7 @@ var Reward = {};
 
         var credits = user.getPersistence().getNumber(CREDITS, 0);
         if (hat.price > credits) {
-            sendPrivateMessage(user, "Du kannst dir den Hut °>" + KnuddelsServer.getFullSystemImagePath(hat.image) + "<° noch nicht leisten! Spiele weiter!");
+            sendPrivateMessage(user, "Du kannst dir den Hut °>" + getImagePath(hat.image) + "<° noch nicht leisten! Spiele weiter!");
             return;
         }
 

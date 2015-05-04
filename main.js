@@ -859,7 +859,7 @@ var App = {};
                 separator = ';';
             }
             if (reward.hasOwnProperty('hat') && Hats.hasOwnProperty(reward.hat)) {
-                var hat = "°>" + KnuddelsServer.getFullSystemImagePath(Hats[reward.hat].image) + "<° ";
+                var hat = "°>" + getImagePath(Hats[reward.hat].image) + "<° ";
                 line += separator + ' Hut ' + hat + ' für alle!';
                 separator = ' ';
             }
@@ -878,7 +878,7 @@ var App = {};
         var availableKnuddel = KnuddelsServer.getDefaultBotUser().getKnuddelAmount().asNumber() - MIN_KNUDDEL;
 
         var text = '°#°Auszahlungen der _Verrückten Runde_';
-        text += '°#°Erreichte Gesammtpunkte: ' + points;
+        text += '°#°Erreichte Gesamtpunkte: ' + points;
 
         for (var i = 0; i < Settings.CrazyRound.Rewards.length; ++i) {
             var reward = Settings.CrazyRound.Rewards[i];
@@ -893,7 +893,7 @@ var App = {};
                 }
                 if (reward.hasOwnProperty('hat') && Hats.hasOwnProperty(reward.hat)) {
                     Payout.hats.push(reward.hat);
-                    var hat = "°>" + KnuddelsServer.getFullSystemImagePath(Hats[reward.hat].image) + "<° ";
+                    var hat = "°>" + getImagePath(Hats[reward.hat].image) + "<° ";
                     text += '°#°Hut ' + hat + ' für alle!';
                 }
             }

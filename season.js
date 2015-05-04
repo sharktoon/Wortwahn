@@ -31,7 +31,7 @@ var Season = (function() {
         if (hasModRights(user)) {
             var text = "Nächste Saison: '" + SeasonChange.NextSeason.name + "' - alte Saison: '" + Settings.Season.name + "', '" + Settings.LastSeason.name + "'";
             text += "°#°id: '" + SeasonChange.NextSeason.id + "' - alte Saison: '" + Settings.Season.id + "', '" + Settings.LastSeason.id + "'";
-            var hat = "°>" + KnuddelsServer.getFullSystemImagePath(Hats[SeasonChange.HatReward].image) + "<° ";
+            var hat = "°>" + getImagePath(Hats[SeasonChange.HatReward].image) + "<° ";
             text += '°#°Hut-Belohnung für Teilnahme: ' + hat;
             text += ' ab ' + SeasonChange.PointsRequired + ' P';
             if (Settings.Season.id == SeasonChange.NextSeason.id || Settings.LastSeason.id == SeasonChange.NextSeason.id) {
@@ -51,7 +51,7 @@ var Season = (function() {
             var hatKey = param.trim();
             if (Hats.hasOwnProperty(hatKey)) {
                 SeasonChange.HatReward = hatKey;
-                var hat = "°>" + KnuddelsServer.getFullSystemImagePath(Hats[hatKey].image) + "<° ";
+                var hat = "°>" + getImagePath(Hats[hatKey].image) + "<° ";
                 sendPrivateMessage(user, "Hut " + hat + "als Belohnung für Teilnahme eingestellt.");
             } else {
                 sendPrivateMessage(user, "Hut nicht gefunden!");

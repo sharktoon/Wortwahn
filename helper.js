@@ -48,3 +48,12 @@ function randomNextInt(number) {
 function randomShuffle(obj) {
     return RandomOperations.shuffleObjects(obj);
 }
+
+/** convenience - creates an image path from an image name */
+function getImagePath(image) {
+    if (image.indexOf("pics/") == 0) {
+        return image;
+    } else {
+        return KnuddelsServer.getFullSystemImagePath(image);
+    }
+}
