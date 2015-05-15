@@ -22,6 +22,7 @@ var HatCategories = {
 (function() {
     // easy to copy past base structure for hat shop
     var PureRewards = [
+        { id:	"	b14	",	category:	"	_HIDDEN_	",	image:	"	pics/sm_667.gif	",	description: "	Hier wird's härter!	", price:	0	},
         { id:	"	MOD	",	category:	"	_SPECIAL_	",	image:	"	states/icon_vip.png	",	description: "	Eine Belohnung für die ehrenamtlichen Einsatz für ein tolles Spiel!	", price:	0	},
         { id:	"	&00	",	category:	"	_SPECIAL_	",	image:	"	objects/side_sunflowerpot.png	",	description: "	Erreicht wenn du 1.000 Punkte in der Saison März geschafft hast.	", price:	0	},
         { id:	"	&01	",	category:	"	_SPECIAL_	",	image:	"	smileys/smiley_bottom-right.gif	",	description: "	Belohnung für die Besten am Ende einer Saison!	", price:	0	},
@@ -51,11 +52,9 @@ var HatCategories = {
         { id:	"	a11	",	category:	"	Beschäftigung	",	image:	"	objects/side_totempole2.png	",	description: "	Damit kann man winken!	", price:	10000	},
         { id:	"	b16	",	category:	"	Beschäftigung	",	image:	"	pics/sm_abo_13-04_nerd.gif	",	description: "	Die Brille verschafft dir den Durchblick!	", price:	25000	},
         { id:	"	a12	",	category:	"	Beschäftigung	",	image:	"	smileys/smiley_bottom-left.gif	",	description: "	Für Leute die nicht gerne alleine sind!	", price:	50000	},
-        { id:	"	b22	",	category:	"	Beschäftigung	",	image:	"	pics/smileywars/icon_skills_king_001.png	",	description: "	Damit sitzt du schon fast auf einem Thron.	", price:	75000	},
         { id:	"	a13	",	category:	"	Beschäftigung	",	image:	"	objects/devilbomb_a.b.gif	",	description: "	Achtung: Gleich wird etwas explodieren. Nur noch einen Moment!	", price:	100000	},
         { id:	"	a14	",	category:	"	Beschäftigung	",	image:	"	smileys/ft_statistik.png	",	description: "	Du weißt immer wo's lang geht!	", price:	250000	},
         { id:	"	a15	",	category:	"	Beschäftigung	",	image:	"	objects/earth_rotation.gif	",	description: "	Hiermit kannst du anderen zeigen, dass du schon die ganze Welt bereist habest.	", price:	500000	},
-        { id:	"	b14	",	category:	"	Beschäftigung	",	image:	"	pics/sm_667.gif	",	description: "	Hier wird's härter!	", price:	750000	},
         { id:	"	a16	",	category:	"	Beschäftigung	",	image:	"	objects/message_sold.png	",	description: "	Damit kannst du anderen zeigen, wie reich du bist.	", price:	1000000	},
         { id:	"	a17	",	category:	"	Beschäftigung	",	image:	"	objects/safe_open.gif	",	description: "	Du bist WIRKLICH reich.	", price:	2500000	},
         { id:	"	b21	",	category:	"	Buntes	",	image:	"	pics/snowfight_catapult.png	",	description: "	Das Torten-Katapult!	", price:	500	},
@@ -102,6 +101,7 @@ var HatCategories = {
         { id:	"	a53	",	category:	"	Hut	",	image:	"	objects/hut_03.png	",	description: "	Let's get the party started!	", price:	1000	},
         { id:	"	a49	",	category:	"	Hut	",	image:	"	objects/cowboyhut.png	",	description: "	Ein echter Hut für Leute die gerne im Wilden Westen sind!	", price:	2500	},
         { id:	"	a50	",	category:	"	Hut	",	image:	"	objects/hat_cowboyorange.png	",	description: "	Ein tod-schicker Hut.	", price:	5000	},
+        { id:	"	b22	",	category:	"	Hut	",	image:	"	pics/smileywars/icon_skills_king_001.png	",	description: "	Damit sitzt du schon fast auf einem Thron.	", price:	75000	},
         { id:	"	a54	",	category:	"	Tiere	",	image:	"	states/newUser.png	",	description: "	Eine Biene. Es erlaubt dir 100% Genuß bei Süßigkeiten.	", price:	50	},
         { id:	"	a55	",	category:	"	Tiere	",	image:	"	states/schaf.png	",	description: "	Der Wolf im Schafspelz. Hiermit hast du 100% Genuß beim Anschauen von Filmen.	", price:	200	},
         { id:	"	b01	",	category:	"	Tiere	",	image:	"	pics/fisch.gif	",	description: "	Damit fühlst du dich wohl wie ein Fisch in Wasser!	", price:	500	},
