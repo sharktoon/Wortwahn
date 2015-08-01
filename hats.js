@@ -32,6 +32,8 @@ var HatCategories = {
         { id:	"	&00	",	category:	"	_SPECIAL_	",	image:	"	objects/side_sunflowerpot.png	",	description: "	Die Belohnung für das Erreichen von 1.000 Punkten in der Saison März.	", price:	0	},
         { id:	"	b18	",	category:	"	_SPECIAL_	",	image:	"	pics/sm_cardsB_03b.b.my_11.h_27.gif	",	description: "	Die Belohnung für das Erreichen von 1.000 Punkten in der Saison April.	", price:	0	},
         { id:	"	&04	",	category:	"	_SPECIAL_	",	image:	"	pics/sm_macguffin2012-item_12.png	",	description: "	Die Belohnung für das Erreichen von 1.000 Punkten in der Saison Mai.	", price:	0	},
+        { id:	"	&05	",	category:	"	_SPECIAL_	",	image:	"	pics/sm_macguffin2012-item_15.png	",	description: "	Die Belohnung für das Erreichen von 1.000 Punkten in der Saison Juni.	", price:	0	},
+        { id:	"	&06	",	category:	"	_SPECIAL_	",	image:	"	pics/sm_macguffin2012-item_08.png	",	description: "	Die Belohnung für das Erreichen von 1.000 Punkten in der Saison August.	", price:	0	},
         { id:	"	a00	",	category:	"	Abstrakt	",	image:	"	chips/s_1.b.png	",	description: "	Deine Lieblingskarten sind Herz.	", price:	25	},
         { id:	"	a01	",	category:	"	Abstrakt	",	image:	"	chips/s_2.b.png	",	description: "	Deine Lieblingskarten sind Kreuz.	", price:	25	},
         { id:	"	a02	",	category:	"	Abstrakt	",	image:	"	chips/s_3.b.png	",	description: "	Deine Lieblingskarten sind Karo.	", price:	25	},
@@ -112,7 +114,7 @@ var HatCategories = {
         { id:	"	a56	",	category:	"	Tiere	",	image:	"	objects/side_turd.png	",	description: "	Nicht alles an Tieren ist toll - nur für echte Sammler.	", price:	50000	},
         { id:	"	b02	",	category:	"	Tiere	",	image:	"	pics/fledermaus.gif	",	description: "	Nachtaktiv!	", price:	75000	},
         { id:	"	b03	",	category:	"	Tiere	",	image:	"	pics/hai.gif	",	description: "	Der Gejagte? Oder der Jäger?	", price:	100000	},
-        { id:	"	a57	",	category:	"	Tiere	",	image:	"	objects/piggyicon.png	",	description: "	Echte Glückskeckse brauchen so etwas!	", price:	500000	},
+        { id:	"	a57	",	category:	"	Tiere	",	image:	"	objects/piggyicon.png	",	description: "	Echte Glückskekse brauchen so etwas!	", price:	500000	},
     ];
 
     for (var i = 0; i < PureRewards.length; ++i) {
