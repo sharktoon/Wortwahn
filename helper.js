@@ -52,7 +52,7 @@ function randomShuffle(obj) {
 /** convenience - creates an image path from an image name */
 function getImagePath(image) {
     if (image.indexOf("pics/") == 0) {
-        return image;
+        return image.substr(5);
     } else {
         return KnuddelsServer.getFullSystemImagePath(image);
     }
