@@ -34,6 +34,7 @@ var HatCategories = {
         { id:	"	&04	",	category:	"	_SPECIAL_	",	image:	"	pics/sm_macguffin2012-item_12.png	",	description: "	Die Belohnung für das Erreichen von 1.000 Punkten in der Saison Mai.	", price:	0	},
         { id:	"	&05	",	category:	"	_SPECIAL_	",	image:	"	pics/sm_macguffin2012-item_15.png	",	description: "	Die Belohnung für das Erreichen von 1.000 Punkten in der Saison Juni.	", price:	0	},
         { id:	"	&06	",	category:	"	_SPECIAL_	",	image:	"	pics/sm_macguffin2012-item_08.png	",	description: "	Die Belohnung für das Erreichen von 1.000 Punkten in der Saison August.	", price:	0	},
+        { id:	"	&07	",	category:	"	_SPECIAL_	",	image:	"	pics/sm_abo_11-10_frankenstein.gif	",	description: "	Die Belohnung für das Erreichen von 1.000 Punkten in der Saison September.	", price:	0	},
         { id:	"	a00	",	category:	"	Abstrakt	",	image:	"	chips/s_1.b.png	",	description: "	Deine Lieblingskarten sind Herz.	", price:	25	},
         { id:	"	a01	",	category:	"	Abstrakt	",	image:	"	chips/s_2.b.png	",	description: "	Deine Lieblingskarten sind Kreuz.	", price:	25	},
         { id:	"	a02	",	category:	"	Abstrakt	",	image:	"	chips/s_3.b.png	",	description: "	Deine Lieblingskarten sind Karo.	", price:	25	},
