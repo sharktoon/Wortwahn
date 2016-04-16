@@ -11,13 +11,23 @@ function sendPublicMessage(text) {
 
 /** convenience - reduces number of warnings in the file */
 function sendPrivateMessage(user, message) {
-    user.sendPrivateMessage(Settings.DefaultBotColor + message);
+    try {
+        user.sendPrivateMessage(Settings.DefaultBotColor + message);
+    } catch(e) {
+        // tough luck x.x
+    }
+
 }
 
 /** convenience - reduces number of warnings in the file */
 function sendPrivateInfoMessage(user, message) {
     var text = message.replace(/"/gi, '');
-    user.sendPrivateMessage(text);
+    try {
+        user.sendPrivateMessage(text);
+    } catch(e) {
+        // too bad
+    }
+
 }
 
 /** check if a user has moderator rights, or is channel owner */

@@ -78,14 +78,24 @@ var Season = (function() {
                 var entry = entries[index];
                 var rank = entry.getRank();
                 if (rank <= SeasonTopRanks) {
-                    Reward.awardHat(entry.getUser(), SeasonTopReward, 'Für die Super-Platzierung in der Saison ' + lastSeasonName + '!');
+                    try {
+                        Reward.awardHat(entry.getUser(), SeasonTopReward, 'Für die Super-Platzierung in der Saison ' + lastSeasonName + '!');
+                    } catch(e)
+                    {
+                        // tough luck
+                    }
                 } else {
                     break;
                 }
             }
 
             UserPersistenceNumbers.each(Settings.Season.id, function(user) {
-                Reward.awardHat(user, SeasonChange.HatReward, 'Für die Teilnahme an der Saison ' + lastSeasonName + '!');
+                try {
+                    Reward.awardHat(user, SeasonChange.HatReward, 'Für die Teilnahme an der Saison ' + lastSeasonName + '!');
+                } catch(e)
+                {
+                    // too bad
+                }
                 return true;
             }, { ascending: false, minimumValue: SeasonChange.PointsRequired } );
 

@@ -1156,7 +1156,7 @@ var App = {};
             for (var piece in newSettings) {
                 if (SettingsBlueprint.hasOwnProperty(piece)) {
                     Settings[piece] = newSettings[piece];
-                    sendPrivateInfoMessage(user, 'Changed Settings.' + piece + ' to ' + Settings[piece]);
+                    sendPrivateInfoMessage(user, 'Changed Settings.' + piece + ' to ' + JSON.stringify(Settings[piece]));
                 }
             }
 
@@ -1170,13 +1170,13 @@ var App = {};
         if (user.isChannelOwner()) {
             param = param.trim();
             if (Settings.hasOwnProperty(param)) {
-                sendPrivateInfoMessage(user, 'Current Settings.' + param + ': ' + Settings[param]);
+                sendPrivateInfoMessage(user, 'Current Settings.' + param + ': ' + JSON.stringify(Settings[param]));
             } else {
-                sendPrivateInfoMessage(user, 'Current Settings: ' + Settings);
+                sendPrivateInfoMessage(user, 'Current Settings: ' + JSON.stringify(Settings));
             }
 
             if (user.isChannelOwner()) {
-                sendPrivateInfoMessage(user, '' + ChangeSettingsLog);
+                sendPrivateInfoMessage(user, '' + JSON.stringify(ChangeSettingsLog));
             }
         }
     }
