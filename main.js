@@ -162,7 +162,9 @@ var Settings = {
     TargetDice: [6, 6, 5],
     AllowPMode: true,
 
-    DefaultBotColor: '°GG°'
+    DefaultBotColor: '°GG°',
+
+    ValueColorCodes: ValueColorCodes
 };
 
 var SettingsBlueprint = Settings;
@@ -273,7 +275,7 @@ var App = {};
     function lettersToString(letters) {
         var result = ' ';
         for (var i = 0; i < letters.length; ++i) {
-            var colorCode = ValueColorCodes[LetterValue[letters[i]]];
+            var colorCode = Settings.ValueColorCodes[LetterValue[letters[i]]];
 
             // result = result + '°r' + colorCode + '°_' + letters[i] + '_°r10[120,120,120]°' + LetterValue[letters[i]] + '°r°  ';
             result = result + TextHelper.get('ColoredLetters', { Color: colorCode, Letter: letters[i], Value: LetterValue[letters[i]]}, undefined);
