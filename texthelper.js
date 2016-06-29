@@ -9,7 +9,7 @@ var TextHelper = (function() {
 
     var texts = {
         ColoredLetters: {
-            text: '°r%Color%°_%Letter%_°r10[120,120,120]°%Value%°r°  ',
+            text: '°r%Color%°_%Letter%_°r10[0,0,0]°%Value%°r°  ',
             values: [ 'Color', 'Letter', 'Value' ]
         },
         // ------------------------------------------------

@@ -57,6 +57,7 @@ var HatCategories = {
         { id:	"	a11	",	category:	"	Beschäftigung	",	image:	"	objects/side_totempole2.png	",	description: "	Damit kann man winken!	", price:	10000	},
         { id:	"	b16	",	category:	"	Beschäftigung	",	image:	"	pics/sm_abo_13-04_nerd.gif	",	description: "	Die Brille verschafft dir den Durchblick!	", price:	25000	},
         { id:	"	a12	",	category:	"	Beschäftigung	",	image:	"	smileys/smiley_bottom-left.gif	",	description: "	Für Leute die nicht gerne alleine sind!	", price:	50000	},
+        { id:	"	b26	",	category:	"	Beschäftigung	",	image:	"	pics/sm_witch.gif	",	description: "	So ein Besen kann vielfältig verwendet werden. Von der richtigen Person!	", price:	75000	},
         { id:	"	a13	",	category:	"	Beschäftigung	",	image:	"	objects/devilbomb_a.b.gif	",	description: "	Achtung: Gleich wird etwas explodieren. Nur noch einen Moment!	", price:	100000	},
         { id:	"	a14	",	category:	"	Beschäftigung	",	image:	"	smileys/ft_statistik.png	",	description: "	Du weißt immer wo's lang geht!	", price:	250000	},
         { id:	"	a15	",	category:	"	Beschäftigung	",	image:	"	objects/earth_rotation.gif	",	description: "	Hiermit kannst du anderen zeigen, dass du schon die ganze Welt bereist habest.	", price:	500000	},
