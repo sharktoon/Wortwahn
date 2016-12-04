@@ -33,6 +33,7 @@ var HatCategories = {
         { id:	"	b18	",	category:	"	_SPECIAL_	",	image:	"	pics/sm_cardsB_03b.b.my_11.h_27.gif	",	description: "	Die Belohnung für das Erreichen von 1.000 Punkten in der Saison April.	", price:	0	},
         { id:	"	&04	",	category:	"	_SPECIAL_	",	image:	"	pics/sm_macguffin2012-item_12.png	",	description: "	Die Belohnung für das Erreichen von 1.000 Punkten in der Saison Mai.	", price:	0	},
         { id:	"	&05	",	category:	"	_SPECIAL_	",	image:	"	pics/sm_macguffin2012-item_15.png	",	description: "	Die Belohnung für das Erreichen von 1.000 Punkten in der Saison Juni.	", price:	0	},
+        { id:	"	&10	",	category:	"	_SPECIAL_	",	image:	"	pics/sm_abo_12-07_love_full-heart-bg.png	",	description: "	Die Belohnung für das Erreichen von 1.000 Punkten in der Saison Juli.	", price:	0	},
         { id:	"	&06	",	category:	"	_SPECIAL_	",	image:	"	pics/sm_macguffin2012-item_08.png	",	description: "	Die Belohnung für das Erreichen von 1.000 Punkten in der Saison August.	", price:	0	},
         { id:	"	&07	",	category:	"	_SPECIAL_	",	image:	"	pics/sm_abo_11-10_frankenstein.gif	",	description: "	Die Belohnung für das Erreichen von 1.000 Punkten in der Saison September.	", price:	0	},
         { id:	"	&08	",	category:	"	_SPECIAL_	",	image:	"	pics/sm_abo_14-02_hockey.gif	",	description: "	Die Belohnung für das Erreichen von 1.000 Punkten in der Saison Januar.	", price:	0	},
