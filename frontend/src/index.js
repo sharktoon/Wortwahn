@@ -6,28 +6,53 @@ class Game extends React.Component {
     constructor(props) {
         super(props);
 
-        const letters = ['x', 'a', 'b', 'e', 'x', 'a'];
+        const letters = ['x', 'a', 'b', 'l', 'x', 'a', 'e'];
         this.state = {
             letters,
             used: new Array(letters.length).fill(false),
             endTime: new Date(),
             word: [],
             values: {
-                a: 1,
-                b: 2,
+                A: 3,
+                B: 3,
+                C: 3,
+                D: 2,
+                E: 2,
+                F: 3,
+                G: 1,
+                H: 2,
+                I: 1,
+                J: 5,
+                K: 3,
+                L: 1,
+                M: 3,
+                N: 2,
+                O: 1,
+                P: 3,
+                Q: 7,
+                R: 3,
+                S: 1,
+                T: 1,
+                U: 1,
+                V: 5,
+                W: 3,
+                X: 7,
+                Y: 7,
+                Z: 3,
             }
         };
     }
 
     getValue(letter) {
-        if (!letter) {
+        if (typeof(letter) !== 'string') {
             return 0;
         }
+        letter = letter.toUpperCase();
         const values = this.state.values;
         if (values.hasOwnProperty(letter)) {
             return values[letter];
         }
-        return 3;
+        return 0;
     }
 
     setLetter(i) {
@@ -69,7 +94,7 @@ class Game extends React.Component {
     calculateWord() {
         const word = this.state.word;
         let value = 0;
-        for(let k = 0; k < word.length; ++k) {
+        for (let k = 0; k < word.length; ++k) {
             value += this.getValue(word[k]);
         }
         return value;
@@ -102,15 +127,15 @@ class Game extends React.Component {
         });
         const wordValue = this.calculateWord();
         return (
-            <div>
+            <div className="game">
                 <div className="letter-row">
                     {letterRow}
                 </div>
+                <div className="score-row">
+                    Score: {wordValue}
+                </div>
                 <div className="word-row">
                     {wordRow}
-                </div>
-                <div>
-                    Score: {wordValue}
                 </div>
             </div>
         );
@@ -119,24 +144,25 @@ class Game extends React.Component {
 
 class Letter extends React.Component {
     render() {
+        const classNames = ['letter', 'value-' + this.props.value];
         return (
-            <div className='letter'>
-                <button className="letter-button" onClick={() => this.props.onClick()} disabled={this.props.used}>
+            <button
+                className={classNames.join(' ')}
+                onClick={() => this.props.onClick()}
+                disabled={this.props.used}>
+                <div className="letter-display">
                     {this.props.letter}
-                </button>
-                <div className="letter-value">
-                    {this.props.value}
                 </div>
-            </div>
+                <div className="letter-value">{this.props.value}</div>
+                <div className="letter-value right">{this.props.value}</div>
+            </button>
         );
     }
 }
 
-
-
 // ========================================
 
 ReactDOM.render(
-    <Game />,
+    <Game/>,
     document.getElementById('root')
 );

@@ -13,11 +13,21 @@ ol, ul {
     display: table;
 }
 
+.letter-row {
+}
+
+.word-row {
+}
+
+.score-row {
+    color: darkblue;
+}
+
 .status {
     margin-bottom: 10px;
 }
 
-.square {
+.letter {
     background: #fff;
     border: 1px solid #999;
     float: left;
@@ -30,10 +40,42 @@ ol, ul {
     padding: 0;
     text-align: center;
     width: 34px;
+    display: block;
+    position: relative;
 }
 
-.square:focus {
+.letter.value-1:enabled {
+    color: #008080;
+}
+.letter.value-2:enabled {
+    color: #8b4513;
+}
+.letter.value-3:enabled {
+    color: #4b0082;
+}
+.letter.value-5:enabled {
+    color: #2e8b57;
+}
+.letter.value-7:enabled {
+    color: #ff5028;
+}
+
+.letter:focus {
     outline: none;
+}
+
+.letter .letter-value {
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-size: 12px;
+    text-align: left;
+    line-height: 12px;
+    height: inherit;
+    width: inherit;
+}
+.letter .letter-value.right {
+    text-align: right;
 }
 
 .kbd-navigation .square:focus {
@@ -41,8 +83,8 @@ ol, ul {
 }
 
 .game {
-    display: flex;
-    flex-direction: row;
+    display: block;
+    position: fixed;
 }
 
 .game-info {
